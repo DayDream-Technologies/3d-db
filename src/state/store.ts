@@ -142,8 +142,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   loadSample: async (url) => {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Failed to load ${url}`);
+    // Resolve leading "/..." against Vite's BASE_URL so GitHub Pages
+    // subpath hosting (/<repo>/) works without changing callers.
+    const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+    const resolved = url.startsWith("/") ? `${base}${url}` : url;
+    const res = await fetch(resolved);
+    if (!res.ok) throw new Error(`Failed to load ${resolved}`);
     const text = await res.text();
     const raw = parseJsonSchema(text);
     set({

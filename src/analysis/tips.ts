@@ -1,5 +1,6 @@
 import type { Schema, Table } from "@/model/schema";
 import { inferRelationships } from "@/model/schema";
+import type { LearnKey } from "@/resources/learnLinks";
 
 export type TipSeverity = "info" | "warn" | "error";
 
@@ -9,6 +10,8 @@ export type Tip = {
   title: string;
   detail: string;
   table?: string;
+  /** Optional W3Schools-linked concept for "Learn more" */
+  learn?: LearnKey;
 };
 
 function percentile(sorted: number[], p: number): number {
@@ -55,6 +58,7 @@ export function analyzeTips(schema: Schema): Tip[] {
         title: "Missing primary key",
         detail: `Table "${t.name}" has no primary key column. Add one for integrity and efficient joins.`,
         table: t.name,
+        learn: "primaryKey",
       });
     }
 
@@ -65,6 +69,7 @@ export function analyzeTips(schema: Schema): Tip[] {
         title: "Very wide table",
         detail: `"${t.name}" has ${t.columns.length} columns. Consider splitting by domain or normalizing.`,
         table: t.name,
+        learn: "createTable",
       });
     }
 
@@ -78,6 +83,7 @@ export function analyzeTips(schema: Schema): Tip[] {
         title: "Many nullable columns",
         detail: `Most columns on "${t.name}" are nullable. Review whether some should be NOT NULL or moved to a related table.`,
         table: t.name,
+        learn: "notNull",
       });
     }
 
@@ -92,6 +98,7 @@ export function analyzeTips(schema: Schema): Tip[] {
           title: "FK target may need an index",
           detail: `Column ${ref.table}.${ref.column} is referenced by ${t.name}.${col.name} but is not marked indexed. Add an index for join performance.`,
           table: t.name,
+          learn: "createIndex",
         });
       }
     }
@@ -106,6 +113,7 @@ export function analyzeTips(schema: Schema): Tip[] {
           title: "Possible bloat hotspot",
           detail: `"${t.name}" has high row count (${rc.toLocaleString()}). Consider archiving cold data, partitioning, or verifying indexes on FKs.`,
           table: t.name,
+          learn: "createIndex",
         });
       }
     }
@@ -123,6 +131,7 @@ export function analyzeTips(schema: Schema): Tip[] {
         title: "Isolated table",
         detail: `"${t.name}" has no FKs in or out in this schema. Verify it is used or document as standalone.`,
         table: t.name,
+        learn: "foreignKey",
       });
     }
   }

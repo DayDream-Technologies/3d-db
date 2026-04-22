@@ -1,4 +1,5 @@
 import { useAppStore } from "@/state/store";
+import { LearnLink } from "./LearnLink";
 
 export function TipsPanel() {
   const tips = useAppStore((s) => s.tips);
@@ -14,9 +15,16 @@ export function TipsPanel() {
 
   if (tips.length === 0) {
     return (
-      <div className="p-3 text-sm text-slate-400">
-        No automated issues detected. Large-row / index hints need row counts and
-        FK metadata in your import.
+      <div className="space-y-2 p-3 text-sm text-slate-400">
+        <p>
+          No automated issues detected. Large-row / index hints need row counts
+          and FK metadata in your import.
+        </p>
+        <div className="rounded border border-slate-700 bg-slate-900/60 p-2 text-[11px]">
+          New to schema design? Explore{" "}
+          <LearnLink topic="constraints" label="SQL constraints" /> and{" "}
+          <LearnLink topic="createIndex" label="CREATE INDEX" />.
+        </div>
       </div>
     );
   }
@@ -49,18 +57,21 @@ export function TipsPanel() {
             <span className="font-medium text-slate-100">{tip.title}</span>
           </div>
           <p className="text-slate-400">{tip.detail}</p>
-          {tip.table && (
-            <button
-              type="button"
-              className="mt-1 text-[11px] text-sky-400 hover:underline"
-              onClick={() => {
-                setSelectedTable(tip.table!);
-                setSidebarTab("table");
-              }}
-            >
-              Open table → {tip.table}
-            </button>
-          )}
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+            {tip.table && (
+              <button
+                type="button"
+                className="text-[11px] text-sky-400 hover:underline"
+                onClick={() => {
+                  setSelectedTable(tip.table!);
+                  setSidebarTab("table");
+                }}
+              >
+                Open table → {tip.table}
+              </button>
+            )}
+            {tip.learn && <LearnLink topic={tip.learn} />}
+          </div>
         </li>
       ))}
     </ul>

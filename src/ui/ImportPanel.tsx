@@ -1,4 +1,5 @@
 import { useAppStore } from "@/state/store";
+import { LearnLink } from "./LearnLink";
 
 const base = import.meta.env.BASE_URL;
 
@@ -147,6 +148,19 @@ export function ImportPanel() {
           (served here) and mirrored under <code className="text-slate-400">docs/</code>{" "}
           in the repo.
         </p>
+      </div>
+      <div className="rounded border border-slate-700 bg-slate-900/60 p-2">
+        <div className="mb-1 text-xs font-semibold text-slate-400">
+          New to SQL? Start here
+        </div>
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
+          <LearnLink topic="home" label="SQL Tutorial home" />
+          <LearnLink topic="createTable" />
+          <LearnLink topic="constraints" />
+          <LearnLink topic="dataTypes" />
+          <LearnLink topic="primaryKey" />
+          <LearnLink topic="foreignKey" />
+        </div>
       </div>
     </div>
   );

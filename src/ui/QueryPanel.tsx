@@ -1,4 +1,5 @@
 import { useAppStore } from "@/state/store";
+import { LearnLink } from "./LearnLink";
 
 export function QueryPanel() {
   const schema = useAppStore((s) => s.schema);
@@ -81,6 +82,19 @@ export function QueryPanel() {
           )}
         </div>
       )}
+      <div className="rounded border border-slate-700 bg-slate-900/60 p-2 text-[11px] text-slate-400">
+        <div className="mb-1 font-semibold text-slate-300">
+          Learn the query syntax
+        </div>
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
+          <LearnLink topic="select" />
+          <LearnLink topic="where" />
+          <LearnLink topic="joins" />
+          <LearnLink topic="innerJoin" />
+          <LearnLink topic="leftJoin" />
+          <LearnLink topic="groupBy" />
+        </div>
+      </div>
     </div>
   );
 }

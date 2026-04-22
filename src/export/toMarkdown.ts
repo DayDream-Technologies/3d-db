@@ -1,6 +1,7 @@
 import type { Schema } from "@/model/schema";
 import { inferRelationships } from "@/model/schema";
 import type { Tip } from "@/analysis/tips";
+import { LEARN } from "@/resources/learnLinks";
 
 function asciiEr(schema: Schema): string {
   const rels = inferRelationships(schema);
@@ -66,9 +67,25 @@ export function toMarkdown(
   else {
     for (const tip of tips) {
       const tbl = tip.table ? ` (\`${tip.table}\`)` : "";
-      parts.push(`- **[${tip.severity}]** ${tip.title}${tbl}: ${tip.detail}`);
+      const learn = tip.learn
+        ? ` _(Learn: [${LEARN[tip.learn].label}](${LEARN[tip.learn].url}))_`
+        : "";
+      parts.push(
+        `- **[${tip.severity}]** ${tip.title}${tbl}: ${tip.detail}${learn}`
+      );
     }
   }
+  parts.push("");
+
+  parts.push("## Further reading (W3Schools SQL Tutorial)");
+  parts.push(
+    `- [${LEARN.home.label}](${LEARN.home.url})`,
+    `- [${LEARN.createTable.label}](${LEARN.createTable.url})`,
+    `- [${LEARN.primaryKey.label}](${LEARN.primaryKey.url})`,
+    `- [${LEARN.foreignKey.label}](${LEARN.foreignKey.url})`,
+    `- [${LEARN.createIndex.label}](${LEARN.createIndex.url})`,
+    `- [${LEARN.joins.label}](${LEARN.joins.url})`
+  );
   parts.push("");
 
   parts.push("## ER sketch (text)");

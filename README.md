@@ -25,7 +25,26 @@ npm run build
 npm run preview   # optional local check of dist/
 ```
 
-`vite.config.ts` uses `base: './'` for relative asset paths. Deploy `dist/` to GitHub Pages (e.g. `npm run deploy` using [gh-pages](https://www.npmjs.com/package/gh-pages) — requires a one-time `npx gh-pages` auth).
+### Automated deploy (recommended)
+
+`.github/workflows/deploy.yml` builds and publishes to Pages on every push to `main`.
+
+1. In your repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. Push to `main`. The workflow will:
+   - install deps (`npm ci`)
+   - compute the correct base path via `actions/configure-pages` and set `VITE_BASE_PATH` (e.g. `/3d-db/`)
+   - `npm run build`, copy `index.html` → `404.html` for SPA fallback, and upload `dist/`
+   - deploy to the `github-pages` environment
+
+The site will be published at `https://<user>.github.io/3d-db/`.
+
+### Manual deploy alternative
+
+```bash
+npm run deploy      # uses gh-pages to push dist/ to the gh-pages branch
+```
+
+`vite.config.ts` honors `VITE_BASE_PATH` when set (CI), otherwise falls back to `./` (local dev + `gh-pages`-branch hosting).
 
 ## Project layout
 

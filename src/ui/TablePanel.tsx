@@ -1,5 +1,6 @@
 import { useAppStore } from "@/state/store";
 import { rowCountPercentiles } from "@/scene/tableScale";
+import { LearnLink } from "./LearnLink";
 
 export function TablePanel() {
   const schema = useAppStore((s) => s.schema);
@@ -82,7 +83,10 @@ export function TablePanel() {
         </p>
       </div>
       <div>
-        <div className="mb-1 text-xs font-semibold text-slate-400">Columns</div>
+        <div className="mb-1 flex items-center justify-between">
+          <span className="text-xs font-semibold text-slate-400">Columns</span>
+          <LearnLink topic="dataTypes" label="Data types" />
+        </div>
         <ul className="max-h-64 space-y-1 overflow-y-auto rounded border border-slate-700 bg-slate-950/80 p-2 text-xs">
           {table.columns.map((c) => (
             <li
@@ -92,21 +96,56 @@ export function TablePanel() {
               <span className="font-mono text-sky-300">{c.name}</span>
               <span className="text-slate-500">{c.type}</span>
               {c.primaryKey && (
-                <span className="rounded bg-amber-900/50 px-1 text-[10px] text-amber-200">
+                <a
+                  href="https://www.w3schools.com/sql/sql_primarykey.asp"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  title="PRIMARY KEY — W3Schools"
+                  className="rounded bg-amber-900/50 px-1 text-[10px] text-amber-200 hover:bg-amber-800/60"
+                >
                   PK
-                </span>
+                </a>
               )}
               {c.foreignKey && (
-                <span className="rounded bg-sky-900/40 px-1 text-[10px] text-sky-200">
+                <a
+                  href="https://www.w3schools.com/sql/sql_foreignkey.asp"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  title="FOREIGN KEY — W3Schools"
+                  className="rounded bg-sky-900/40 px-1 text-[10px] text-sky-200 hover:bg-sky-800/60"
+                >
                   FK→{c.foreignKey.table}.{c.foreignKey.column}
-                </span>
+                </a>
               )}
               {c.indexed && (
-                <span className="text-[10px] text-emerald-400">indexed</span>
+                <a
+                  href="https://www.w3schools.com/sql/sql_create_index.asp"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  title="CREATE INDEX — W3Schools"
+                  className="text-[10px] text-emerald-400 hover:underline"
+                >
+                  indexed
+                </a>
+              )}
+              {c.nullable === false && (
+                <a
+                  href="https://www.w3schools.com/sql/sql_notnull.asp"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  title="NOT NULL — W3Schools"
+                  className="rounded bg-slate-800 px-1 text-[10px] text-slate-300 hover:bg-slate-700"
+                >
+                  NOT NULL
+                </a>
               )}
             </li>
           ))}
         </ul>
+        <p className="mt-2 text-[11px] text-slate-500">
+          Tip: click any PK / FK / NOT NULL / indexed tag to read the concept on
+          W3Schools.
+        </p>
       </div>
     </div>
   );

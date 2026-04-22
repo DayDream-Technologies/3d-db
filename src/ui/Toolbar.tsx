@@ -9,6 +9,7 @@ import {
   KeySquare,
 } from "lucide-react";
 import { useAppStore } from "@/state/store";
+import { LearnMenu } from "./LearnMenu";
 
 type Props = {
   onScreenshot: () => void;
@@ -107,6 +108,7 @@ export function Toolbar({ onScreenshot, onFitView }: Props) {
           <Camera className="h-3.5 w-3.5" />
           Screenshot
         </button>
+        <LearnMenu />
       </div>
     </header>
   );
