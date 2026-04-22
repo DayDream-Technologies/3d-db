@@ -1,0 +1,103 @@
+{
+  "name": "E-commerce (sample)",
+  "tables": [
+    {
+      "name": "users",
+      "rowCount": 12500,
+      "columns": [
+        { "name": "id", "type": "uuid", "primaryKey": true },
+        { "name": "email", "type": "text", "nullable": false, "indexed": true },
+        { "name": "created_at", "type": "timestamptz", "nullable": false }
+      ]
+    },
+    {
+      "name": "products",
+      "rowCount": 820,
+      "columns": [
+        { "name": "id", "type": "uuid", "primaryKey": true },
+        { "name": "sku", "type": "text", "nullable": false, "indexed": true },
+        { "name": "title", "type": "text", "nullable": false },
+        { "name": "price_cents", "type": "int", "nullable": false }
+      ]
+    },
+    {
+      "name": "inventory",
+      "rowCount": 950000,
+      "columns": [
+        { "name": "id", "type": "bigserial", "primaryKey": true },
+        {
+          "name": "product_id",
+          "type": "uuid",
+          "nullable": false,
+          "foreignKey": { "table": "products", "column": "id" },
+          "indexed": false
+        },
+        { "name": "warehouse", "type": "text", "nullable": false },
+        { "name": "qty", "type": "int", "nullable": false },
+        { "name": "snapshot_at", "type": "timestamptz", "nullable": true }
+      ]
+    },
+    {
+      "name": "orders",
+      "rowCount": 210000,
+      "columns": [
+        { "name": "id", "type": "uuid", "primaryKey": true },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "nullable": false,
+          "foreignKey": { "table": "users", "column": "id" },
+          "indexed": true
+        },
+        { "name": "status", "type": "text", "nullable": false, "indexed": true },
+        { "name": "placed_at", "type": "timestamptz", "nullable": false }
+      ]
+    },
+    {
+      "name": "order_items",
+      "rowCount": 480000,
+      "columns": [
+        { "name": "id", "type": "bigserial", "primaryKey": true },
+        {
+          "name": "order_id",
+          "type": "uuid",
+          "nullable": false,
+          "foreignKey": { "table": "orders", "column": "id" },
+          "indexed": true
+        },
+        {
+          "name": "product_id",
+          "type": "uuid",
+          "nullable": false,
+          "foreignKey": { "table": "products", "column": "id" },
+          "indexed": true
+        },
+        { "name": "qty", "type": "int", "nullable": false },
+        { "name": "unit_price_cents", "type": "int", "nullable": false }
+      ]
+    },
+    {
+      "name": "reviews",
+      "rowCount": 89000,
+      "columns": [
+        { "name": "id", "type": "bigserial", "primaryKey": true },
+        {
+          "name": "product_id",
+          "type": "uuid",
+          "nullable": false,
+          "foreignKey": { "table": "products", "column": "id" },
+          "indexed": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "nullable": true,
+          "foreignKey": { "table": "users", "column": "id" },
+          "indexed": false
+        },
+        { "name": "rating", "type": "smallint", "nullable": false },
+        { "name": "body", "type": "text", "nullable": true }
+      ]
+    }
+  ]
+}

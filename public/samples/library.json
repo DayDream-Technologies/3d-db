@@ -1,0 +1,79 @@
+{
+  "name": "Library (sample)",
+  "tables": [
+    {
+      "name": "authors",
+      "rowCount": 1200,
+      "columns": [
+        { "name": "id", "type": "serial", "primaryKey": true },
+        { "name": "name", "type": "text", "nullable": false, "indexed": true }
+      ]
+    },
+    {
+      "name": "books",
+      "rowCount": 28000,
+      "columns": [
+        { "name": "id", "type": "serial", "primaryKey": true },
+        {
+          "name": "author_id",
+          "type": "int",
+          "nullable": false,
+          "foreignKey": { "table": "authors", "column": "id" },
+          "indexed": true
+        },
+        { "name": "isbn", "type": "varchar(20)", "nullable": false, "indexed": true },
+        { "name": "title", "type": "text", "nullable": false },
+        { "name": "published_year", "type": "int", "nullable": true }
+      ]
+    },
+    {
+      "name": "members",
+      "rowCount": 4500,
+      "columns": [
+        { "name": "id", "type": "serial", "primaryKey": true },
+        { "name": "card_number", "type": "varchar(32)", "nullable": false, "indexed": true },
+        { "name": "name", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "loans",
+      "rowCount": 120000,
+      "columns": [
+        { "name": "id", "type": "bigserial", "primaryKey": true },
+        {
+          "name": "book_id",
+          "type": "int",
+          "nullable": false,
+          "foreignKey": { "table": "books", "column": "id" },
+          "indexed": true
+        },
+        {
+          "name": "member_id",
+          "type": "int",
+          "nullable": false,
+          "foreignKey": { "table": "members", "column": "id" },
+          "indexed": true
+        },
+        { "name": "borrowed_at", "type": "date", "nullable": false },
+        { "name": "due_at", "type": "date", "nullable": false },
+        { "name": "returned_at", "type": "date", "nullable": true }
+      ]
+    },
+    {
+      "name": "fines",
+      "rowCount": 8900,
+      "columns": [
+        { "name": "id", "type": "serial", "primaryKey": true },
+        {
+          "name": "loan_id",
+          "type": "bigint",
+          "nullable": false,
+          "foreignKey": { "table": "loans", "column": "id" },
+          "indexed": true
+        },
+        { "name": "amount_cents", "type": "int", "nullable": false },
+        { "name": "paid", "type": "boolean", "nullable": false, "indexed": true }
+      ]
+    }
+  ]
+}

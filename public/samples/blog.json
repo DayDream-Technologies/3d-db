@@ -1,0 +1,83 @@
+{
+  "name": "Blog (sample)",
+  "tables": [
+    {
+      "name": "users",
+      "rowCount": 3400,
+      "columns": [
+        { "name": "id", "type": "serial", "primaryKey": true },
+        { "name": "username", "type": "varchar(64)", "nullable": false, "indexed": true },
+        { "name": "display_name", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "posts",
+      "rowCount": 18200,
+      "columns": [
+        { "name": "id", "type": "serial", "primaryKey": true },
+        {
+          "name": "author_id",
+          "type": "int",
+          "nullable": false,
+          "foreignKey": { "table": "users", "column": "id" },
+          "indexed": true
+        },
+        { "name": "slug", "type": "varchar(160)", "nullable": false, "indexed": true },
+        { "name": "title", "type": "text", "nullable": false },
+        { "name": "published_at", "type": "timestamptz", "nullable": true, "indexed": true }
+      ]
+    },
+    {
+      "name": "comments",
+      "rowCount": 96000,
+      "columns": [
+        { "name": "id", "type": "bigserial", "primaryKey": true },
+        {
+          "name": "post_id",
+          "type": "int",
+          "nullable": false,
+          "foreignKey": { "table": "posts", "column": "id" },
+          "indexed": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "nullable": true,
+          "foreignKey": { "table": "users", "column": "id" },
+          "indexed": false
+        },
+        { "name": "body", "type": "text", "nullable": false },
+        { "name": "created_at", "type": "timestamptz", "nullable": false }
+      ]
+    },
+    {
+      "name": "tags",
+      "rowCount": 420,
+      "columns": [
+        { "name": "id", "type": "serial", "primaryKey": true },
+        { "name": "name", "type": "varchar(48)", "nullable": false, "indexed": true }
+      ]
+    },
+    {
+      "name": "post_tags",
+      "rowCount": 38000,
+      "columns": [
+        { "name": "id", "type": "bigserial", "primaryKey": true },
+        {
+          "name": "post_id",
+          "type": "int",
+          "nullable": false,
+          "foreignKey": { "table": "posts", "column": "id" },
+          "indexed": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "nullable": false,
+          "foreignKey": { "table": "tags", "column": "id" },
+          "indexed": true
+        }
+      ]
+    }
+  ]
+}
