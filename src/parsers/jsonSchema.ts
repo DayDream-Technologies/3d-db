@@ -1,4 +1,5 @@
 import type { Column, Schema, Table } from "@/model/schema";
+import type { QueryModel } from "@/model/query";
 
 /** Extended JSON — see docs/SCHEMA_FORMAT.md */
 
@@ -21,17 +22,10 @@ type JsonTable = {
 type JsonSchema = {
   name?: string;
   tables: JsonTable[];
+  queries?: unknown;
 };
 
-export function parseJsonSchema(raw: string): Schema {
-  let data: unknown;
-  try {
-    data = JSON.parse(raw);
-  } catch {
-    throw new Error("Invalid JSON");
-  }
-  if (!data || typeof data !== "object") throw new Error("Root must be an object");
-  const obj = data as JsonSchema;
+function schemaFromJsonData(obj: JsonSchema): Schema {
   if (!Array.isArray(obj.tables)) throw new Error('Missing "tables" array');
 
   const tables: Table[] = obj.tables.map((jt, i) => {
@@ -66,4 +60,48 @@ export function parseJsonSchema(raw: string): Schema {
     name: typeof obj.name === "string" ? obj.name : "Imported schema",
     tables,
   };
+}
+
+function isQueryModelish(x: unknown): x is QueryModel {
+  if (!x || typeof x !== "object") return false;
+  const o = x as Record<string, unknown>;
+  return (
+    typeof o.id === "string" &&
+    Array.isArray(o.select) &&
+    o.from != null &&
+    typeof o.from === "object"
+  );
+}
+
+function parseQueriesField(obj: object): QueryModel[] {
+  const q = (obj as JsonSchema).queries;
+  if (q == null) return [];
+  if (!Array.isArray(q)) return [];
+  return q.filter(isQueryModelish);
+}
+
+export function parseJsonSchema(raw: string): Schema {
+  let data: unknown;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    throw new Error("Invalid JSON");
+  }
+  if (!data || typeof data !== "object") throw new Error("Root must be an object");
+  return schemaFromJsonData(data as JsonSchema);
+}
+
+/** Like parseJsonSchema but also returns optional `queries` for save/load round-trip. */
+export function parseJsonSchemaWithQueries(
+  raw: string
+): { schema: Schema; queries: QueryModel[] } {
+  let data: unknown;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    throw new Error("Invalid JSON");
+  }
+  if (!data || typeof data !== "object") throw new Error("Root must be an object");
+  const o = data as object;
+  return { schema: schemaFromJsonData(o as JsonSchema), queries: parseQueriesField(o) };
 }

@@ -1,9 +1,6 @@
 import {
   Camera,
   LayoutGrid,
-  BookOpen,
-  ShoppingCart,
-  Library,
   Maximize2,
   KeyRound,
   KeySquare,
@@ -17,7 +14,6 @@ type Props = {
 };
 
 export function Toolbar({ onScreenshot, onFitView }: Props) {
-  const loadSample = useAppStore((s) => s.loadSample);
   const resetLayout = useAppStore((s) => s.resetLayout);
   const schema = useAppStore((s) => s.schema);
   const showKeys = useAppStore((s) => s.showKeys);
@@ -32,33 +28,6 @@ export function Toolbar({ onScreenshot, onFitView }: Props) {
         <span className="truncate text-xs text-slate-500">· {schema.name}</span>
       )}
       <div className="ml-auto flex flex-wrap items-center gap-1">
-        <button
-          type="button"
-          className="flex items-center gap-1 rounded border border-slate-600 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
-          onClick={() => void loadSample("/samples/ecommerce.json")}
-          title="Load e-commerce sample"
-        >
-          <ShoppingCart className="h-3.5 w-3.5" />
-          E‑commerce
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-1 rounded border border-slate-600 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
-          onClick={() => void loadSample("/samples/blog.json")}
-          title="Load blog sample"
-        >
-          <BookOpen className="h-3.5 w-3.5" />
-          Blog
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-1 rounded border border-slate-600 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700"
-          onClick={() => void loadSample("/samples/library.json")}
-          title="Load library sample"
-        >
-          <Library className="h-3.5 w-3.5" />
-          Library
-        </button>
         <button
           type="button"
           className={`flex items-center gap-1 rounded border px-2 py-1 text-xs disabled:opacity-40 ${

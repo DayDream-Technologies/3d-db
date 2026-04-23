@@ -1,14 +1,15 @@
+import { useState } from "react";
 import { useAppStore } from "@/state/store";
 import { LearnLink } from "./LearnLink";
+import { DocModal } from "./DocModal";
+import { FileText } from "lucide-react";
 
-const base = import.meta.env.BASE_URL;
-
-const DOCS = [
-  { label: "Schema JSON format", href: `${base}docs/SCHEMA_FORMAT.md` },
-  { label: "Supabase / Postgres", href: `${base}docs/IMPORT_SUPABASE.md` },
-  { label: "Postgres", href: `${base}docs/IMPORT_POSTGRES.md` },
-  { label: "MySQL", href: `${base}docs/IMPORT_MYSQL.md` },
-  { label: "MongoDB", href: `${base}docs/IMPORT_MONGODB.md` },
+const DOCS: { label: string; path: string }[] = [
+  { label: "Schema JSON format", path: `docs/SCHEMA_FORMAT.md` },
+  { label: "Supabase / Postgres", path: `docs/IMPORT_SUPABASE.md` },
+  { label: "Postgres", path: `docs/IMPORT_POSTGRES.md` },
+  { label: "MySQL", path: `docs/IMPORT_MYSQL.md` },
+  { label: "MongoDB", path: `docs/IMPORT_MONGODB.md` },
 ];
 
 export function ImportPanel() {
@@ -18,6 +19,11 @@ export function ImportPanel() {
   const setImportText = useAppStore((s) => s.setImportText);
   const applyImport = useAppStore((s) => s.applyImport);
   const loadSample = useAppStore((s) => s.loadSample);
+
+  const [openDoc, setOpenDoc] = useState<{
+    title: string;
+    path: string;
+  } | null>(null);
 
   return (
     <div className="space-y-3 p-3 text-sm">
@@ -127,27 +133,34 @@ export function ImportPanel() {
       </div>
       <div>
         <div className="mb-1 text-xs font-semibold text-slate-400">
-          Import guides (open in repo or dev server)
+          Import guides
         </div>
-        <ul className="list-inside list-disc space-y-0.5 text-[11px] text-sky-400">
+        <ul className="space-y-0.5 text-[11px]">
           {DOCS.map((d) => (
-            <li key={d.href}>
-              <a
-                href={d.href}
-                target="_blank"
-                rel="noreferrer"
-                className="hover:underline"
+            <li key={d.path} className="list-none">
+              <button
+                type="button"
+                className="inline-flex w-full max-w-sm items-center gap-1.5 rounded px-1.5 py-0.5 text-left text-sky-400 hover:bg-slate-800/80"
+                onClick={() =>
+                  setOpenDoc({ title: d.label, path: d.path })
+                }
               >
+                <FileText className="h-3 w-3 shrink-0 opacity-80" />
                 {d.label}
-              </a>
+              </button>
             </li>
           ))}
         </ul>
         <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
-          Markdown guides are in <code className="text-slate-400">public/docs</code>{" "}
-          (served here) and mirrored under <code className="text-slate-400">docs/</code>{" "}
-          in the repo.
+          Source files: <code className="text-slate-400">public/docs</code> (also
+          in <code className="text-slate-400">docs/</code> in the repository).
         </p>
+        <DocModal
+          open={openDoc != null}
+          title={openDoc?.title ?? ""}
+          docPath={openDoc?.path ?? "docs/SCHEMA_FORMAT.md"}
+          onClose={() => setOpenDoc(null)}
+        />
       </div>
       <div className="rounded border border-slate-700 bg-slate-900/60 p-2">
         <div className="mb-1 text-xs font-semibold text-slate-400">

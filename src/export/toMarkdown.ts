@@ -2,6 +2,8 @@ import type { Schema } from "@/model/schema";
 import { inferRelationships } from "@/model/schema";
 import type { Tip } from "@/analysis/tips";
 import { LEARN } from "@/resources/learnLinks";
+import type { QueryModel } from "@/model/query";
+import { generateSql } from "@/query/generateSql";
 
 function asciiEr(schema: Schema): string {
   const rels = inferRelationships(schema);
@@ -19,7 +21,8 @@ function asciiEr(schema: Schema): string {
 export function toMarkdown(
   schema: Schema,
   tips: Tip[],
-  selectedTable: string | null
+  selectedTable: string | null,
+  options?: { includeQueries?: boolean; savedQueries?: QueryModel[] }
 ): string {
   const rels = inferRelationships(schema);
   const parts: string[] = [];
@@ -87,6 +90,20 @@ export function toMarkdown(
     `- [${LEARN.joins.label}](${LEARN.joins.url})`
   );
   parts.push("");
+
+  if (
+    options?.includeQueries &&
+    options.savedQueries &&
+    options.savedQueries.length > 0
+  ) {
+    parts.push("## Saved queries");
+    for (const q of options.savedQueries) {
+      parts.push(`### \`${q.name}\``);
+      if (q.notes) parts.push(`_${q.notes.replace(/\n/g, " ")}_`);
+      parts.push("");
+      parts.push("```sql", generateSql(q), "```", "");
+    }
+  }
 
   parts.push("## ER sketch (text)");
   parts.push(asciiEr(schema));

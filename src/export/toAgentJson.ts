@@ -1,6 +1,8 @@
 import type { Schema } from "@/model/schema";
 import { inferRelationships } from "@/model/schema";
 import type { Tip } from "@/analysis/tips";
+import type { QueryModel } from "@/model/query";
+import { generateSql } from "@/query/generateSql";
 
 export type AgentExportPayload = {
   version: 1;
@@ -29,14 +31,23 @@ export type AgentExportPayload = {
   };
   selection: { selectedTable: string | null };
   tips: { id: string; severity: string; title: string; detail: string; table?: string }[];
+  queries?: {
+    id: string;
+    name: string;
+    notes: string;
+    sql: string;
+    model: QueryModel;
+  }[];
 };
 
 export function toAgentJson(
   schema: Schema,
   tips: Tip[],
-  selectedTable: string | null
+  selectedTable: string | null,
+  options?: { includeQueries?: boolean; savedQueries?: QueryModel[] }
 ): string {
   const rels = inferRelationships(schema);
+  const includeQ = options?.includeQueries && (options?.savedQueries?.length ?? 0) > 0;
   const payload: AgentExportPayload = {
     version: 1,
     exportedAt: new Date().toISOString(),
@@ -82,5 +93,14 @@ export function toAgentJson(
       table: tip.table,
     })),
   };
+  if (includeQ && options?.savedQueries) {
+    payload.queries = options.savedQueries.map((q) => ({
+      id: q.id,
+      name: q.name,
+      notes: q.notes,
+      sql: generateSql(q),
+      model: q,
+    }));
+  }
   return JSON.stringify(payload, null, 2);
 }
