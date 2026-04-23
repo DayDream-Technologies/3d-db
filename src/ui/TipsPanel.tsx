@@ -1,79 +1,41 @@
-import { useAppStore } from "@/state/store";
-import { LearnLink } from "./LearnLink";
+import { useState } from "react";
+import { clsx } from "clsx";
+import { TipsList } from "./TipsList";
+import { PracticePanel } from "./practice/PracticePanel";
+
+type TTab = "tips" | "practice";
 
 export function TipsPanel() {
-  const tips = useAppStore((s) => s.tips);
-  const schema = useAppStore((s) => s.schema);
-  const setSelectedTable = useAppStore((s) => s.setSelectedTable);
-  const setSidebarTab = useAppStore((s) => s.setSidebarTab);
-
-  if (!schema) {
-    return (
-      <div className="p-3 text-sm text-slate-500">Import a schema to see tips.</div>
-    );
-  }
-
-  if (tips.length === 0) {
-    return (
-      <div className="space-y-2 p-3 text-sm text-slate-400">
-        <p>
-          No automated issues detected. Large-row / index hints need row counts
-          and FK metadata in your import.
-        </p>
-        <div className="rounded border border-slate-700 bg-slate-900/60 p-2 text-[11px]">
-          New to schema design? Explore{" "}
-          <LearnLink topic="constraints" label="SQL constraints" /> and{" "}
-          <LearnLink topic="createIndex" label="CREATE INDEX" />.
-        </div>
-      </div>
-    );
-  }
+  const [tab, setTab] = useState<TTab>("tips");
 
   return (
-    <ul className="max-h-[calc(100vh-10rem)] space-y-2 overflow-y-auto p-3 text-sm">
-      {tips.map((tip) => (
-        <li
-          key={tip.id}
-          className={`rounded border p-2 text-xs ${
-            tip.severity === "error"
-              ? "border-red-900/50 bg-red-950/25"
-              : tip.severity === "warn"
-                ? "border-amber-900/40 bg-amber-950/20"
-                : "border-slate-700 bg-slate-900/50"
-          }`}
-        >
-          <div className="mb-0.5 flex items-center gap-2">
-            <span
-              className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
-                tip.severity === "error"
-                  ? "bg-red-800 text-white"
-                  : tip.severity === "warn"
-                    ? "bg-amber-700 text-white"
-                    : "bg-slate-700 text-slate-200"
-              }`}
-            >
-              {tip.severity}
-            </span>
-            <span className="font-medium text-slate-100">{tip.title}</span>
-          </div>
-          <p className="text-slate-400">{tip.detail}</p>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-            {tip.table && (
-              <button
-                type="button"
-                className="text-[11px] text-sky-400 hover:underline"
-                onClick={() => {
-                  setSelectedTable(tip.table!);
-                  setSidebarTab("table");
-                }}
-              >
-                Open table → {tip.table}
-              </button>
+    <div className="p-0 text-sm">
+      <div className="flex border-b border-slate-800">
+        {(
+          [
+            ["tips", "Tips"],
+            ["practice", "Practice"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            className={clsx(
+              "flex-1 border-b-2 px-2 py-2 text-xs font-medium transition-colors",
+              tab === id
+                ? "border-sky-500 text-sky-200"
+                : "border-transparent text-slate-500 hover:text-slate-300"
             )}
-            {tip.learn && <LearnLink topic={tip.learn} />}
-          </div>
-        </li>
-      ))}
-    </ul>
+            onClick={() => setTab(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <div className="pt-0">
+        {tab === "tips" && <TipsList />}
+        {tab === "practice" && <PracticePanel />}
+      </div>
+    </div>
   );
 }

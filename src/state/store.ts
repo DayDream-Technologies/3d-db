@@ -29,8 +29,14 @@ export type SidebarTab =
 export type ImportMode = "json" | "sql";
 
 type AppState = {
-  /** Imported schema before row-count overrides */
+  /** Imported schema before row-count overrides (mutated by editor actions) */
   rawSchema: Schema | null;
+  /**
+   * Frozen snapshot of the schema as originally imported/loaded.
+   * Stays untouched across editor mutations - used as the baseline for
+   * SQL diff exports. Null when the schema was created from scratch.
+   */
+  importedSchema: Schema | null;
   /** Merged view for scene / tips / export */
   schema: Schema | null;
   layout: LayoutMap;
@@ -53,6 +59,13 @@ type AppState = {
   activeQueryId: string | null;
   savedQueries: QueryModel[];
   includeQueriesInExport: boolean;
+
+  /** Practice (Learn) tab — persisted with queries */
+  practiceProgress: Record<
+    string,
+    Record<string, "passed" | "attempted">
+  >;
+  practiceAnswers: Record<string, Record<string, string>>;
 
   setImportMode: (m: ImportMode) => void;
   setImportText: (t: string) => void;
@@ -102,6 +115,13 @@ type AppState = {
   importSavedQueriesMerge: (queries: QueryModel[]) => void;
   setIncludeQueriesInExport: (v: boolean) => void;
   exportSavedQueriesAsJson: () => string;
+
+  setPracticeStep: (
+    lessonId: string,
+    stepId: string,
+    status: "passed" | "attempted"
+  ) => void;
+  setPracticeAnswer: (lessonId: string, stepId: string, sql: string) => void;
 };
 
 function applyOverrides(
@@ -142,6 +162,7 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       rawSchema: null,
+      importedSchema: null,
       schema: null,
       layout: {},
       rowCountOverrides: {},
@@ -161,6 +182,11 @@ export const useAppStore = create<AppState>()(
       activeQueryId: null,
       savedQueries: [] as QueryModel[],
       includeQueriesInExport: true,
+      practiceProgress: {} as Record<
+        string,
+        Record<string, "passed" | "attempted">
+      >,
+      practiceAnswers: {} as Record<string, Record<string, string>>,
 
       setImportMode: (m) => set({ importMode: m }),
       setImportText: (t) => set({ importText: t }),
@@ -169,6 +195,7 @@ export const useAppStore = create<AppState>()(
         if (!schema) {
           set({
             rawSchema: null,
+            importedSchema: null,
             schema: null,
             layout: {},
             tips: [],
@@ -181,6 +208,7 @@ export const useAppStore = create<AppState>()(
         const layout = buildLayout(merged, get().layoutSeed);
         set({
           rawSchema: schema,
+          importedSchema: JSON.parse(JSON.stringify(schema)) as Schema,
           schema: merged,
           layout,
           tips: analyzeTips(merged),
@@ -201,6 +229,7 @@ export const useAppStore = create<AppState>()(
           get().importSavedQueriesMerge(queries);
           set({
             rawSchema: raw,
+            importedSchema: JSON.parse(JSON.stringify(raw)) as Schema,
             schema: merged,
             layout,
             tips: analyzeTips(merged),
@@ -215,6 +244,7 @@ export const useAppStore = create<AppState>()(
           const layout = buildLayout(merged, 42);
           set({
             rawSchema: raw,
+            importedSchema: JSON.parse(JSON.stringify(raw)) as Schema,
             schema: merged,
             layout,
             tips: analyzeTips(merged),
@@ -243,6 +273,7 @@ export const useAppStore = create<AppState>()(
         const layout = buildLayout(merged, 42);
         set({
           rawSchema: raw,
+          importedSchema: JSON.parse(JSON.stringify(raw)) as Schema,
           schema: merged,
           layout,
           tips: analyzeTips(merged),
@@ -687,6 +718,30 @@ export const useAppStore = create<AppState>()(
           2
         );
       },
+
+      setPracticeStep: (lessonId, stepId, status) => {
+        set({
+          practiceProgress: {
+            ...get().practiceProgress,
+            [lessonId]: {
+              ...get().practiceProgress[lessonId],
+              [stepId]: status,
+            },
+          },
+        });
+      },
+
+      setPracticeAnswer: (lessonId, stepId, sql) => {
+        set({
+          practiceAnswers: {
+            ...get().practiceAnswers,
+            [lessonId]: {
+              ...get().practiceAnswers[lessonId],
+              [stepId]: sql,
+            },
+          },
+        });
+      },
     }),
     {
       name: "3d-db:queries",
@@ -694,6 +749,8 @@ export const useAppStore = create<AppState>()(
       partialize: (s) => ({
         savedQueries: s.savedQueries,
         includeQueriesInExport: s.includeQueriesInExport,
+        practiceProgress: s.practiceProgress,
+        practiceAnswers: s.practiceAnswers,
       }),
     }
   )

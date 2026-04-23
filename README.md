@@ -8,6 +8,7 @@ Web-based **3D schema visualization** (React + Vite + [react-three-fiber](https:
 - **SELECT query highlight** (tables + join edges dimmed / emphasized)
 - **AI-friendly export** (structured JSON + Markdown for agents)
 - **Static / client-only** — paste JSON or SQL DDL; no server required
+- **Tips → Practice** — guided SQL + schema exercises from [`src/learn/lessons.md`](src/learn/lessons.md) (bundled; a copy is at [`public/learn/lessons.md`](public/learn/lessons.md) for static fetches) with structural checks and answer keys
 
 ## Quick start
 
