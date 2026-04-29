@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:mcp": "vite build && npm run build --prefix mcp-server && rm -rf mcp-server/static && cp -r dist mcp-server/static",
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "npm run build && npx gh-pages -d dist"
