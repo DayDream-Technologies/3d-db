@@ -25,3 +25,6 @@ dist-ssr
 
 # TypeScript
 *.tsbuildinfo
+
+mcp-server/static/
+mcp-server/dist/

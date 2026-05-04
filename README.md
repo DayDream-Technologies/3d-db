@@ -10,7 +10,25 @@ Web-based **3D schema visualization** (React + Vite + [react-three-fiber](https:
 - **Static / client-only** — paste JSON or SQL DDL; no server required
 - **Tips → Practice** — guided SQL + schema exercises from [`src/learn/lessons.md`](src/learn/lessons.md) (bundled; a copy is at [`public/learn/lessons.md`](public/learn/lessons.md) for static fetches) with structural checks and answer keys
 
-## Quick start
+## AI tool integration (MCP)
+
+Connect Claude Desktop, Claude Code, Cursor, Windsurf, or VS Code so your AI can visualize your database in 3D on command. **No cloning or dev server needed** — the visualizer is bundled inside the npm package.
+
+Run this once in your terminal (Node.js 18+ required):
+
+```
+npx --yes --package 3d-db-mcp-zq db-viz-mcp setup
+```
+
+Then restart your AI tool and ask it: *"Load my database schema into the 3D visualizer"* — a browser window opens automatically.
+
+→ **Full setup guide, all AI tools, and tool reference: [`mcp-server/README.md`](mcp-server/README.md)**
+
+---
+
+## Quick start (contributing / developing this project)
+
+---
 
 ```bash
 npm install

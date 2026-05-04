@@ -3,8 +3,10 @@ import { MainCanvas } from "./MainCanvas";
 import { Toolbar } from "./ui/Toolbar";
 import { Sidebar } from "./ui/Sidebar";
 import { useAppStore } from "./state/store";
+import { useMcpBridge } from './mcp/useMcpBridge';
 
 export default function App() {
+  useMcpBridge();
   const screenshotRef = useRef<(() => void) | null>(null);
   const fitViewRef = useRef<(() => void) | null>(null);
 
