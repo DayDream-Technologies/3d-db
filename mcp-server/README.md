@@ -54,10 +54,17 @@ VS Code MCP config is project-scoped. Add `.vscode/mcp.json` to your project:
 
 ### `load_schema`
 
-Loads your database schema into the 3D visualizer. Accepts JSON or SQL DDL.
+Loads your database schema into the 3D visualizer. Accepts JSON or SQL DDL. Replaces the current import (full load).
 
 **Example prompt:**
 > "Load my database schema into the 3D visualizer"
+
+### `preview_schema_proposal`
+
+Sends a **proposed** schema JSON to the visualizer as a **preview** only. The accepted baseline stays unchanged until the user clicks **Accept** in the **Agent** tab (when using the repo dev app with WebSocket bridge). Use this for LLM-suggested migrations; use `load_schema` when you intend to replace the whole schema immediately.
+
+**Example prompt:**
+> "Preview this proposed schema JSON in the 3D visualizer without replacing my baseline"
 
 ### `highlight_query`
 

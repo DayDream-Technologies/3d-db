@@ -12,6 +12,8 @@ type Props = {
 
 export function MainCanvas({ screenshotRef, fitViewRef }: Props) {
   const schema = useAppStore((s) => s.schema);
+  const importedSchema = useAppStore((s) => s.importedSchema);
+  const proposalSchema = useAppStore((s) => s.proposalSchema);
   const layout = useAppStore((s) => s.layout);
   const selectedTable = useAppStore((s) => s.selectedTable);
   const hoveredKey = useAppStore((s) => s.hoveredKey);
@@ -92,6 +94,7 @@ export function MainCanvas({ screenshotRef, fitViewRef }: Props) {
           screenshotRef={screenshotRef}
           fitViewRef={fitViewRef}
           showKeys={showKeys}
+          proposalBaseline={proposalSchema ? importedSchema : null}
         />
       </Canvas>
       <Legend />

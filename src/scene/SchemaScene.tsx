@@ -4,6 +4,12 @@ import { inferRelationships } from "@/model/schema";
 import type { Schema } from "@/model/schema";
 import type { LayoutMap } from "@/layout/forceLayout";
 import type { QueryHighlightResult } from "@/analysis/queryHighlight";
+import { diffSchema } from "@/export/schemaDiff";
+import {
+  buildProposalTableStatusMap,
+  newRelationshipIds,
+} from "@/export/proposalTableStatus";
+import type { ProposalTableVisualStatus } from "@/export/proposalTableStatus";
 import { Table3D } from "./Table3D";
 import { Relationship3D } from "./Relationship3D";
 import { HoverEdges } from "./HoverEdges";
@@ -20,6 +26,8 @@ type Props = {
   screenshotRef: React.MutableRefObject<(() => void) | null>;
   fitViewRef: React.MutableRefObject<(() => void) | null>;
   showKeys: boolean;
+  /** When non-null, `schema` is the proposal head and baseline is used for diff styling. */
+  proposalBaseline: Schema | null;
 };
 
 function edgeWeights(schema: Schema): Map<string, number> {
@@ -45,9 +53,19 @@ export function SchemaScene({
   screenshotRef,
   fitViewRef,
   showKeys,
+  proposalBaseline,
 }: Props) {
   const rels = useMemo(() => inferRelationships(schema), [schema]);
   const weights = useMemo(() => edgeWeights(schema), [schema]);
+  const proposalTableStatus = useMemo(() => {
+    if (!proposalBaseline) return null;
+    const d = diffSchema(proposalBaseline, schema);
+    return buildProposalTableStatusMap(proposalBaseline, d);
+  }, [proposalBaseline, schema]);
+  const proposalNewRelIds = useMemo(() => {
+    if (!proposalBaseline) return null;
+    return newRelationshipIds(proposalBaseline, schema);
+  }, [proposalBaseline, schema]);
   const { gl, scene, camera } = useThree();
   const rigRef = useRef<CameraRigHandle>(null);
   const didInitialFit = useRef(false);
@@ -125,6 +143,9 @@ export function SchemaScene({
           !!qhTables &&
           !qhTables.has(r.fromTable) &&
           !qhTables.has(r.toTable);
+        const proposalNewEdge = !!(
+          proposalNewRelIds && proposalNewRelIds.has(r.id)
+        );
         return (
           <Relationship3D
             key={r.id}
@@ -133,6 +154,7 @@ export function SchemaScene({
             highlight={highlight}
             dim={dim}
             weight={w}
+            proposalNewEdge={proposalNewEdge}
           />
         );
       })}
@@ -141,6 +163,8 @@ export function SchemaScene({
         if (!pos) return null;
         const queryDim = !!qhTables && !qhTables.has(t.name);
         const queryHl = !!qhTables && qhTables.has(t.name);
+        const proposalStatus: ProposalTableVisualStatus | null =
+          proposalTableStatus?.get(t.name) ?? null;
         return (
           <Table3D
             key={t.name}
@@ -155,6 +179,7 @@ export function SchemaScene({
             hoveredKey={hoveredKey}
             onSelectTable={onSelectTable}
             onHoverKey={onHoverKey}
+            proposalStatus={proposalStatus}
           />
         );
       })}

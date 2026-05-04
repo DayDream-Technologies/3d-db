@@ -5,6 +5,7 @@ import {
   Search,
   Lightbulb,
   FileJson,
+  Bot,
 } from "lucide-react";
 import { useAppStore, type SidebarTab } from "@/state/store";
 import { ImportPanel } from "./ImportPanel";
@@ -12,6 +13,7 @@ import { TablePanel } from "./TablePanel";
 import { QueryPanel } from "./QueryPanel";
 import { TipsPanel } from "./TipsPanel";
 import { ExportPanel } from "./ExportPanel";
+import { AgentPanel } from "./AgentPanel";
 
 const tabs: { id: SidebarTab; label: string; icon: typeof Database }[] = [
   { id: "import", label: "Import", icon: Database },
@@ -19,6 +21,7 @@ const tabs: { id: SidebarTab; label: string; icon: typeof Database }[] = [
   { id: "query", label: "Query", icon: Search },
   { id: "tips", label: "Tips", icon: Lightbulb },
   { id: "export", label: "Export", icon: FileJson },
+  { id: "agent", label: "Agent", icon: Bot },
 ];
 
 export function Sidebar() {
@@ -52,6 +55,7 @@ export function Sidebar() {
         {tab === "query" && <QueryPanel />}
         {tab === "tips" && <TipsPanel />}
         {tab === "export" && <ExportPanel />}
+        {tab === "agent" && <AgentPanel />}
       </div>
     </aside>
   );

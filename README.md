@@ -37,6 +37,8 @@ npm run dev
 
 Open the URL shown (e.g. `http://localhost:5173/`). The **e-commerce** sample loads automatically.
 
+**Agent proposal preview (this repo + dev server):** Use the **Agent** sidebar tab to preview LLM-proposed schema JSON against the accepted baseline, then **Export** for migration SQL. Optional gitignored workspace files live under `.3d-db-workspace/` (see [`.cursor/skills/3d-db-workspace-schema/SKILL.md`](.cursor/skills/3d-db-workspace-schema/SKILL.md)). Cursor agents can load [`.cursor/skills/3d-db-visualizer-proposals/SKILL.md`](.cursor/skills/3d-db-visualizer-proposals/SKILL.md) for the full workflow.
+
 ## Build & GitHub Pages
 
 ```bash

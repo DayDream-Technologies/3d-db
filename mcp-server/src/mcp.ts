@@ -32,6 +32,21 @@ export function createMcpServer(http: HttpServer) {
         },
       },
       {
+        name: 'preview_schema_proposal',
+        description:
+          'Send a proposed schema JSON to the 3D visualizer as a non-destructive preview. Does not replace the accepted baseline: the user accepts or dismisses in the Agent tab. Use extended JSON (same shape as load_schema JSON). For a full replace without preview, use load_schema instead.',
+        inputSchema: {
+          type: 'object' as const,
+          properties: {
+            schema_text: {
+              type: 'string',
+              description: 'Proposed schema as JSON string (3d-db extended format)',
+            },
+          },
+          required: ['schema_text'],
+        },
+      },
+      {
         name: 'highlight_query',
         description:
           'Highlight a SQL SELECT query on the 3D visualizer, dimming unrelated tables and drawing edges along the query path.',
@@ -66,6 +81,19 @@ export function createMcpServer(http: HttpServer) {
       http.broadcast({ type: 'load_schema', payload: schema_text });
       return {
         content: [{ type: 'text' as const, text: 'Schema loaded into the 3D visualizer.' }],
+      };
+    }
+
+    if (name === 'preview_schema_proposal') {
+      const { schema_text } = args as { schema_text: string };
+      http.broadcast({ type: 'preview_proposal', payload: schema_text });
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: 'Proposal preview sent to the 3D visualizer (Agent tab). User must Accept or Dismiss.',
+          },
+        ],
       };
     }
 

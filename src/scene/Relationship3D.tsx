@@ -10,6 +10,8 @@ type Props = {
   highlight: boolean;
   dim: boolean;
   weight?: number;
+  /** FK edge introduced vs accepted baseline (proposal preview). */
+  proposalNewEdge?: boolean;
 };
 
 export function Relationship3D({
@@ -18,6 +20,7 @@ export function Relationship3D({
   highlight,
   dim,
   weight = 1,
+  proposalNewEdge = false,
 }: Props) {
   const points = useMemo(() => {
     const a = layout[rel.fromTable];
@@ -33,14 +36,20 @@ export function Relationship3D({
 
   if (points.length < 2) return null;
 
-  const color = highlight ? "#38bdf8" : dim ? "#334155" : "#475569";
-  const opacity = dim ? 0.15 : highlight ? 1 : 0.55;
+  const color = highlight
+    ? "#38bdf8"
+    : proposalNewEdge && !dim
+      ? "#4ade80"
+      : dim
+        ? "#334155"
+        : "#475569";
+  const opacity = dim ? 0.15 : highlight ? 1 : proposalNewEdge ? 0.9 : 0.55;
 
   return (
     <Line
       points={points}
       color={color}
-      lineWidth={highlight ? 3 : 2}
+      lineWidth={highlight ? 3 : proposalNewEdge ? 2.5 : 2}
       transparent
       opacity={opacity}
     />

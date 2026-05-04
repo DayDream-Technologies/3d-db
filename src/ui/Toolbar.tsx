@@ -16,6 +16,8 @@ type Props = {
 export function Toolbar({ onScreenshot, onFitView }: Props) {
   const resetLayout = useAppStore((s) => s.resetLayout);
   const schema = useAppStore((s) => s.schema);
+  const proposalSchema = useAppStore((s) => s.proposalSchema);
+  const setSidebarTab = useAppStore((s) => s.setSidebarTab);
   const showKeys = useAppStore((s) => s.showKeys);
   const toggleShowKeys = useAppStore((s) => s.toggleShowKeys);
 
@@ -26,6 +28,16 @@ export function Toolbar({ onScreenshot, onFitView }: Props) {
       </span>
       {schema && (
         <span className="truncate text-xs text-slate-500">· {schema.name}</span>
+      )}
+      {proposalSchema && (
+        <button
+          type="button"
+          title="Open Agent tab — schema proposal preview"
+          className="ml-1 shrink-0 rounded border border-amber-700/60 bg-amber-950/60 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-200 hover:bg-amber-900/50"
+          onClick={() => setSidebarTab("agent")}
+        >
+          Proposal
+        </button>
       )}
       <div className="ml-auto flex flex-wrap items-center gap-1">
         <button

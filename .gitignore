@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Local full schema + agent workspace (never commit)
+.3d-db-workspace/
+
 # Editor
 .vscode/*
 !.vscode/extensions.json

@@ -30,6 +30,7 @@ type PendingRequest = {
 
 export type OutboundMessage =
   | { type: 'load_schema'; payload: string }
+  | { type: 'preview_proposal'; payload: string }
   | { type: 'highlight_query'; payload: { sql: string } }
   | { type: 'get_schema_request'; id: string };
 

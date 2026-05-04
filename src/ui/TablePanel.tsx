@@ -44,6 +44,7 @@ export function TablePanel() {
   const addColumn = useAppStore((s) => s.addColumn);
   const setSidebarTab = useAppStore((s) => s.setSidebarTab);
   const schemaDirty = useAppStore((s) => s.schemaDirty);
+  const proposalSchema = useAppStore((s) => s.proposalSchema);
 
   const [newTableName, setNewTableName] = useState("");
   const [newTableError, setNewTableError] = useState<string | null>(null);
@@ -77,6 +78,26 @@ export function TablePanel() {
     setRenaming(null);
     setRenameError(null);
   };
+
+  if (proposalSchema) {
+    return (
+      <div className="space-y-3 p-4 text-sm text-slate-300">
+        <p className="font-medium text-slate-100">Agent proposal is active</p>
+        <p className="text-xs leading-relaxed text-slate-400">
+          The 3D view shows the proposed schema. Accept or dismiss it in the
+          Agent tab before editing tables here (editing would dismiss the
+          preview).
+        </p>
+        <button
+          type="button"
+          className="rounded border border-amber-700/60 bg-amber-950/50 px-3 py-2 text-xs font-medium text-amber-100 hover:bg-amber-900/40"
+          onClick={() => setSidebarTab("agent")}
+        >
+          Open Agent tab
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3 p-3 text-sm">

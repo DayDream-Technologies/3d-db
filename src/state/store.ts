@@ -24,7 +24,15 @@ export type SidebarTab =
   | "table"
   | "query"
   | "tips"
-  | "export";
+  | "export"
+  | "agent";
+
+export type ProposalSource = "mcp" | "ui" | "file";
+
+export type ProposalMeta = {
+  source: ProposalSource;
+  receivedAt: string;
+} | null;
 
 export type ImportMode = "json" | "sql";
 
@@ -53,6 +61,13 @@ type AppState = {
   showKeys: boolean;
   /** True when schema has user edits not yet re-exported */
   schemaDirty: boolean;
+
+  /**
+   * Pending LLM / agent schema preview. While set, `importedSchema` stays the
+   * accepted baseline and `schema` / `layout` / `tips` reflect the proposal only.
+   */
+  proposalSchema: Schema | null;
+  proposalMeta: ProposalMeta;
 
   /** Query builder + saved (persisted: savedQueries, includeQueriesInExport) */
   builderModel: QueryModel;
@@ -104,6 +119,19 @@ type AppState = {
     fk: ForeignKeyRef | null
   ) => void;
   markSchemaSaved: () => void;
+
+  /** Parse errors are thrown; caller may catch and show UI. */
+  applyProposalPreviewFromText: (
+    text: string,
+    meta?: ProposalMeta
+  ) => void;
+  applyProposalPreview: (
+    raw: Schema,
+    meta?: ProposalMeta,
+    queries?: QueryModel[]
+  ) => void;
+  dismissProposal: () => void;
+  acceptProposal: () => void;
 
   setBuilderModel: (m: QueryModel) => void;
   newBuilderQuery: () => void;
@@ -177,6 +205,8 @@ export const useAppStore = create<AppState>()(
       tips: [] as Tip[],
       showKeys: true,
       schemaDirty: false,
+      proposalSchema: null,
+      proposalMeta: null,
 
       builderModel: initialBuilder(),
       activeQueryId: null,
@@ -201,6 +231,8 @@ export const useAppStore = create<AppState>()(
             tips: [],
             selectedTable: null,
             queryHighlight: null,
+            proposalSchema: null,
+            proposalMeta: null,
           });
           return;
         }
@@ -211,6 +243,82 @@ export const useAppStore = create<AppState>()(
           importedSchema: JSON.parse(JSON.stringify(schema)) as Schema,
           schema: merged,
           layout,
+          tips: analyzeTips(merged),
+          queryHighlight: null,
+          schemaDirty: false,
+          proposalSchema: null,
+          proposalMeta: null,
+        });
+      },
+
+      applyProposalPreview: (raw, meta, queries) => {
+        const clone = JSON.parse(JSON.stringify(raw)) as Schema;
+        const merged = mergeRowCounts(clone, {});
+        const layout = buildLayout(merged, get().layoutSeed);
+        if (queries && queries.length > 0) {
+          get().importSavedQueriesMerge(queries);
+        }
+        set({
+          proposalSchema: clone,
+          proposalMeta:
+            meta ?? { source: "ui", receivedAt: new Date().toISOString() },
+          schema: merged,
+          layout,
+          tips: analyzeTips(merged),
+          queryHighlight: null,
+          sidebarTab: "agent",
+        });
+      },
+
+      applyProposalPreviewFromText: (text, meta) => {
+        const { schema: raw, queries } = parseJsonSchemaWithQueries(text);
+        get().applyProposalPreview(
+          raw,
+          meta ?? { source: "ui", receivedAt: new Date().toISOString() },
+          queries
+        );
+      },
+
+      dismissProposal: () => {
+        const { proposalSchema, rawSchema, rowCountOverrides, layoutSeed } =
+          get();
+        if (!proposalSchema) return;
+        if (!rawSchema) {
+          set({
+            proposalSchema: null,
+            proposalMeta: null,
+            schema: null,
+            layout: {},
+            tips: [],
+            queryHighlight: null,
+          });
+          return;
+        }
+        const merged = applyOverrides(rawSchema, rowCountOverrides);
+        set({
+          proposalSchema: null,
+          proposalMeta: null,
+          schema: merged,
+          layout: buildLayout(merged, layoutSeed),
+          tips: analyzeTips(merged),
+          queryHighlight: null,
+        });
+      },
+
+      acceptProposal: () => {
+        const p = get().proposalSchema;
+        if (!p) return;
+        const cloneRaw = JSON.parse(JSON.stringify(p)) as Schema;
+        const merged = mergeRowCounts(cloneRaw, {});
+        const layoutSeed = get().layoutSeed;
+        set({
+          proposalSchema: null,
+          proposalMeta: null,
+          rowCountOverrides: {},
+          rawSchema: cloneRaw,
+          importedSchema: JSON.parse(JSON.stringify(cloneRaw)) as Schema,
+          schema: merged,
+          layout: buildLayout(merged, layoutSeed),
           tips: analyzeTips(merged),
           queryHighlight: null,
           schemaDirty: false,
@@ -236,6 +344,8 @@ export const useAppStore = create<AppState>()(
             queryHighlight: null,
             sidebarTab: "tips" as const,
             schemaDirty: false,
+            proposalSchema: null,
+            proposalMeta: null,
           });
         } else {
           const raw = parseSqlSchema(importText);
@@ -251,6 +361,8 @@ export const useAppStore = create<AppState>()(
             queryHighlight: null,
             sidebarTab: "tips" as const,
             schemaDirty: false,
+            proposalSchema: null,
+            proposalMeta: null,
           });
         }
       },
@@ -280,10 +392,13 @@ export const useAppStore = create<AppState>()(
           queryHighlight: null,
           sidebarTab: "import" as const,
           schemaDirty: false,
+          proposalSchema: null,
+          proposalMeta: null,
         });
       },
 
       setRowCount: (table, count) => {
+        if (get().proposalSchema) return;
         const raw = get().rawSchema;
         if (!raw) return;
         const nextOverrides = { ...get().rowCountOverrides };
@@ -335,6 +450,7 @@ export const useAppStore = create<AppState>()(
       toggleShowKeys: () => set({ showKeys: !get().showKeys }),
 
       createTable: (rawName) => {
+        if (get().proposalSchema) get().dismissProposal();
         const name = rawName.trim();
         if (!name) return { ok: false, error: "Name is required." };
         if (!isValidIdent(name))
@@ -379,6 +495,7 @@ export const useAppStore = create<AppState>()(
       },
 
       renameTable: (oldName, rawNew) => {
+        if (get().proposalSchema) get().dismissProposal();
         const newName = rawNew.trim();
         if (!newName) return { ok: false, error: "Name is required." };
         if (!isValidIdent(newName))
@@ -424,6 +541,7 @@ export const useAppStore = create<AppState>()(
       },
 
       deleteTable: (name) => {
+        if (get().proposalSchema) get().dismissProposal();
         const raw = get().rawSchema;
         if (!raw) return;
         const nextRaw: Schema = {
@@ -455,6 +573,7 @@ export const useAppStore = create<AppState>()(
       },
 
       addColumn: (tableName, col) => {
+        if (get().proposalSchema) get().dismissProposal();
         const name = col.name.trim();
         if (!name) return { ok: false, error: "Name is required." };
         if (!isValidIdent(name))
@@ -495,6 +614,7 @@ export const useAppStore = create<AppState>()(
       },
 
       updateColumn: (tableName, colName, patch) => {
+        if (get().proposalSchema) get().dismissProposal();
         const raw = get().rawSchema;
         if (!raw) return { ok: false, error: "No schema loaded." };
         const t = raw.tables.find((x) => x.name === tableName);
@@ -552,6 +672,7 @@ export const useAppStore = create<AppState>()(
       },
 
       deleteColumn: (tableName, colName) => {
+        if (get().proposalSchema) get().dismissProposal();
         const raw = get().rawSchema;
         if (!raw) return;
         const nextRaw: Schema = {
@@ -579,6 +700,7 @@ export const useAppStore = create<AppState>()(
       },
 
       setForeignKey: (tableName, colName, fk) => {
+        if (get().proposalSchema) get().dismissProposal();
         const raw = get().rawSchema;
         if (!raw) return;
         const nextRaw: Schema = {

@@ -4,6 +4,7 @@ import { toAgentJson } from '../export/toAgentJson';
 
 type InboundMsg =
   | { type: 'load_schema'; payload: string }
+  | { type: 'preview_proposal'; payload: string }
   | { type: 'highlight_query'; payload: { sql: string } }
   | { type: 'get_schema_request'; id: string };
 
@@ -31,6 +32,15 @@ export function useMcpBridge(): void {
         store.setImportMode(isJson ? 'json' : 'sql');
         store.setImportText(text);
         store.applyImport();
+      } else if (msg.type === 'preview_proposal') {
+        try {
+          store.applyProposalPreviewFromText(msg.payload.trim(), {
+            source: 'mcp',
+            receivedAt: new Date().toISOString(),
+          });
+        } catch (e) {
+          console.error('[MCP] preview_proposal failed:', e);
+        }
       } else if (msg.type === 'highlight_query') {
         store.setQueryText(msg.payload.sql);
         store.runQueryHighlight();

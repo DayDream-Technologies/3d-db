@@ -43,6 +43,7 @@ export function ExportPanel() {
   const includeQueries = useAppStore((s) => s.includeQueriesInExport);
   const setInclude = useAppStore((s) => s.setIncludeQueriesInExport);
   const schemaDirty = useAppStore((s) => s.schemaDirty);
+  const proposalSchema = useAppStore((s) => s.proposalSchema);
   const markSchemaSaved = useAppStore((s) => s.markSchemaSaved);
   const [includeRowHints, setIncludeRowHints] = useState(true);
 
@@ -78,12 +79,16 @@ export function ExportPanel() {
   const diff = preview.diff;
   const baselineLabel = diff.baselineMissing
     ? "No baseline - all tables will be CREATE-ed"
-    : `Baseline: imported schema (${
-        importedSchema?.tables.length ?? 0
-      } tables)`;
+    : proposalSchema
+      ? `Baseline: accepted schema (${importedSchema?.tables.length ?? 0} tables) — SQL migrates to the pending proposal shown in the 3D view`
+      : `Baseline: imported schema (${
+          importedSchema?.tables.length ?? 0
+        } tables)`;
   const changeSummary = hasSchemaChanges(diff)
     ? `${diff.newTables.length} new · ${diff.modifiedTables.length} modified · ${diff.deletedTables.length} deleted`
-    : "No schema changes since import";
+    : proposalSchema
+      ? "No structural changes vs accepted baseline"
+      : "No schema changes since import";
 
   const buildSql = (dialect: SqlDialect) => {
     let includeDrops = false;

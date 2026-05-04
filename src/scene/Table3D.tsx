@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Html, Text } from "@react-three/drei";
 import type { Schema, Table } from "@/model/schema";
 import { bloatHex, cubeEdge, getMaxRowCount, rowCountPercentiles } from "./tableScale";
+import type { ProposalTableVisualStatus } from "@/export/proposalTableStatus";
 import clsx from "clsx";
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
   hoveredKey: { table: string; column: string } | null;
   onSelectTable: (name: string) => void;
   onHoverKey: (k: { table: string; column: string } | null) => void;
+  proposalStatus: ProposalTableVisualStatus | null;
 };
 
 function relatedColumns(
@@ -57,11 +59,18 @@ export function Table3D({
   hoveredKey,
   onSelectTable,
   onHoverKey,
+  proposalStatus,
 }: Props) {
   const maxRows = useMemo(() => getMaxRowCount(schema), [schema]);
   const { p95, p99 } = useMemo(() => rowCountPercentiles(schema), [schema]);
   const edge = cubeEdge(table.rowCount, maxRows);
-  const color = bloatHex(table.rowCount, p95, p99);
+  const bloatColor = bloatHex(table.rowCount, p95, p99);
+  const color =
+    proposalStatus === "added"
+      ? "#22c55e"
+      : proposalStatus === "modified"
+        ? "#f59e0b"
+        : bloatColor;
   const highlightKeys = useMemo(() => {
     if (!hoveredKey) return null;
     return relatedColumns(schema, hoveredKey.table, hoveredKey.column);
@@ -74,7 +83,13 @@ export function Table3D({
         ? 1
         : 0.45
     : 1;
-  const emissive = selected ? "#0ea5e9" : "#000000";
+  const emissive = selected
+    ? "#0ea5e9"
+    : proposalStatus === "added"
+      ? "#166534"
+      : proposalStatus === "modified"
+        ? "#92400e"
+        : "#000000";
 
   return (
     <group position={position}>
@@ -94,7 +109,9 @@ export function Table3D({
         <meshStandardMaterial
           color={color}
           emissive={emissive}
-          emissiveIntensity={selected ? 0.35 : 0}
+          emissiveIntensity={
+            selected ? 0.35 : proposalStatus === "added" ? 0.28 : proposalStatus === "modified" ? 0.22 : 0
+          }
           metalness={0.2}
           roughness={0.65}
           transparent={opacity < 1}
