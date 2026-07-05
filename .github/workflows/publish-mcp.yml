@@ -44,7 +44,8 @@ jobs:
           jq --arg v "$VERSION" '.version = $v' server.json > tmp && mv tmp server.json
 
       - name: Publish to npm
-        run: npm publish --prefix mcp-server
+        working-directory: mcp-server
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
