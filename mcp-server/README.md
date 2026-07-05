@@ -19,7 +19,7 @@ Lets AI tools (Claude Desktop, Claude Code, Cursor, Windsurf, VS Code with GitHu
 Run this once in your terminal:
 
 ```
-npx --yes --package 3d-db-mcp-zq db-viz-mcp setup
+npx --yes --package @daydream-technologies/3d-db-mcp 3d-db-mcp setup
 ```
 
 This detects which AI tools you have installed and configures them automatically. No config files to edit.
@@ -42,7 +42,7 @@ VS Code MCP config is project-scoped. Add `.vscode/mcp.json` to your project:
     "3d-db": {
       "type": "stdio",
       "command": "npx",
-      "args": ["--yes", "--package", "3d-db-mcp-zq", "db-viz-mcp"]
+      "args": ["--yes", "--package", "@daydream-technologies/3d-db-mcp", "3d-db-mcp"]
     }
   }
 }
@@ -89,7 +89,7 @@ The setup command patches your AI tool's config file to add:
 ```json
 {
   "command": "npx",
-  "args": ["--yes", "--package", "3d-db-mcp-zq", "db-viz-mcp"]
+  "args": ["--yes", "--package", "@daydream-technologies/3d-db-mcp", "3d-db-mcp"]
 }
 ```
 

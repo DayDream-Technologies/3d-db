@@ -1,0 +1,425 @@
+{
+  "name": "Restaurant",
+  "tables": [
+    {
+      "name": "roles",
+      "rowCount": 4,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "code", "type": "text", "nullable": false, "indexed": true },
+        { "name": "name", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "order_statuses",
+      "rowCount": 5,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "code", "type": "text", "nullable": false, "indexed": true },
+        { "name": "name", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "reservation_statuses",
+      "rowCount": 5,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "code", "type": "text", "nullable": false, "indexed": true },
+        { "name": "name", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "waitlist_statuses",
+      "rowCount": 3,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "code", "type": "text", "nullable": false, "indexed": true },
+        { "name": "name", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "allergens",
+      "rowCount": 4,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "name", "type": "text", "nullable": false, "indexed": true }
+      ]
+    },
+    {
+      "name": "kitchen_stations",
+      "rowCount": 4,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "code", "type": "text", "nullable": false, "indexed": true },
+        { "name": "name", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "locations",
+      "rowCount": 2,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "name", "type": "text", "nullable": false },
+        { "name": "address", "type": "text", "nullable": false },
+        { "name": "phone", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "dining_tables",
+      "rowCount": 7,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "location_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "locations", "column": "id" },
+          "indexed": true
+        },
+        { "name": "name", "type": "text", "nullable": false },
+        { "name": "capacity", "type": "integer", "nullable": false },
+        { "name": "is_active", "type": "integer", "nullable": false }
+      ]
+    },
+    {
+      "name": "staff",
+      "rowCount": 6,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "role_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "roles", "column": "id" },
+          "indexed": true
+        },
+        { "name": "name", "type": "text", "nullable": false },
+        { "name": "email", "type": "text", "nullable": true },
+        { "name": "hired_at", "type": "text", "nullable": false },
+        { "name": "is_active", "type": "integer", "nullable": false }
+      ]
+    },
+    {
+      "name": "customers",
+      "rowCount": 8500,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "name", "type": "text", "nullable": false, "indexed": true },
+        { "name": "email", "type": "text", "nullable": true },
+        { "name": "phone", "type": "text", "nullable": true, "indexed": true },
+        { "name": "created_at", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "menu_categories",
+      "rowCount": 5,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "name", "type": "text", "nullable": false },
+        { "name": "sort_order", "type": "integer", "nullable": false }
+      ]
+    },
+    {
+      "name": "menu_items",
+      "rowCount": 15,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "category_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "menu_categories", "column": "id" },
+          "indexed": true
+        },
+        { "name": "name", "type": "text", "nullable": false },
+        { "name": "description", "type": "text", "nullable": true },
+        { "name": "price_cents", "type": "integer", "nullable": false },
+        {
+          "name": "kitchen_station_id",
+          "type": "integer",
+          "nullable": true,
+          "foreignKey": { "table": "kitchen_stations", "column": "id" }
+        },
+        { "name": "is_available", "type": "integer", "nullable": false, "indexed": true }
+      ]
+    },
+    {
+      "name": "suppliers",
+      "rowCount": 3,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "name", "type": "text", "nullable": false },
+        { "name": "contact_phone", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "inventory_items",
+      "rowCount": 8,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "sku", "type": "text", "nullable": false, "indexed": true },
+        { "name": "name", "type": "text", "nullable": false },
+        { "name": "unit", "type": "text", "nullable": false },
+        { "name": "quantity_on_hand", "type": "real", "nullable": false },
+        { "name": "reorder_point", "type": "real", "nullable": false }
+      ]
+    },
+    {
+      "name": "promotions",
+      "rowCount": 2,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "code", "type": "text", "nullable": false, "indexed": true },
+        { "name": "discount_pct", "type": "integer", "nullable": false },
+        { "name": "valid_from", "type": "text", "nullable": false },
+        { "name": "valid_to", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "menu_item_allergens",
+      "rowCount": 6,
+      "columns": [
+        {
+          "name": "menu_item_id",
+          "type": "integer",
+          "nullable": false,
+          "primaryKey": true,
+          "foreignKey": { "table": "menu_items", "column": "id" }
+        },
+        {
+          "name": "allergen_id",
+          "type": "integer",
+          "nullable": false,
+          "primaryKey": true,
+          "foreignKey": { "table": "allergens", "column": "id" }
+        }
+      ]
+    },
+    {
+      "name": "supplier_items",
+      "rowCount": 8,
+      "columns": [
+        {
+          "name": "supplier_id",
+          "type": "integer",
+          "nullable": false,
+          "primaryKey": true,
+          "foreignKey": { "table": "suppliers", "column": "id" }
+        },
+        {
+          "name": "inventory_item_id",
+          "type": "integer",
+          "nullable": false,
+          "primaryKey": true,
+          "foreignKey": { "table": "inventory_items", "column": "id" }
+        },
+        { "name": "unit_cost_cents", "type": "integer", "nullable": false }
+      ]
+    },
+    {
+      "name": "menu_item_recipe",
+      "rowCount": 8,
+      "columns": [
+        {
+          "name": "menu_item_id",
+          "type": "integer",
+          "nullable": false,
+          "primaryKey": true,
+          "foreignKey": { "table": "menu_items", "column": "id" }
+        },
+        {
+          "name": "inventory_item_id",
+          "type": "integer",
+          "nullable": false,
+          "primaryKey": true,
+          "foreignKey": { "table": "inventory_items", "column": "id" }
+        },
+        { "name": "qty_per_portion", "type": "real", "nullable": false }
+      ]
+    },
+    {
+      "name": "shifts",
+      "rowCount": 2400,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "staff_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "staff", "column": "id" },
+          "indexed": true
+        },
+        { "name": "starts_at", "type": "text", "nullable": false, "indexed": true },
+        { "name": "ends_at", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "orders",
+      "rowCount": 52000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "customer_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "customers", "column": "id" },
+          "indexed": true
+        },
+        {
+          "name": "dining_table_id",
+          "type": "integer",
+          "nullable": true,
+          "foreignKey": { "table": "dining_tables", "column": "id" },
+          "indexed": true
+        },
+        {
+          "name": "order_status_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "order_statuses", "column": "id" },
+          "indexed": true
+        },
+        { "name": "placed_at", "type": "text", "nullable": false, "indexed": true },
+        { "name": "notes", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "order_lines",
+      "rowCount": 145000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "order_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "orders", "column": "id" },
+          "indexed": true
+        },
+        {
+          "name": "menu_item_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "menu_items", "column": "id" },
+          "indexed": true
+        },
+        { "name": "qty", "type": "integer", "nullable": false },
+        { "name": "unit_price_cents", "type": "integer", "nullable": false }
+      ]
+    },
+    {
+      "name": "order_promotions",
+      "rowCount": 18000,
+      "columns": [
+        {
+          "name": "order_id",
+          "type": "integer",
+          "nullable": false,
+          "primaryKey": true,
+          "foreignKey": { "table": "orders", "column": "id" }
+        },
+        {
+          "name": "promotion_id",
+          "type": "integer",
+          "nullable": false,
+          "primaryKey": true,
+          "foreignKey": { "table": "promotions", "column": "id" }
+        },
+        { "name": "discount_cents", "type": "integer", "nullable": false }
+      ]
+    },
+    {
+      "name": "payments",
+      "rowCount": 52000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "order_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "orders", "column": "id" },
+          "indexed": true
+        },
+        { "name": "method", "type": "text", "nullable": false },
+        { "name": "amount_cents", "type": "integer", "nullable": false },
+        { "name": "processed_at", "type": "text", "nullable": false, "indexed": true }
+      ]
+    },
+    {
+      "name": "reservations",
+      "rowCount": 12000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "customer_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "customers", "column": "id" }
+        },
+        {
+          "name": "dining_table_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "dining_tables", "column": "id" },
+          "indexed": true
+        },
+        { "name": "party_size", "type": "integer", "nullable": false },
+        { "name": "start_at", "type": "text", "nullable": false, "indexed": true },
+        { "name": "end_at", "type": "text", "nullable": false },
+        {
+          "name": "reservation_status_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "reservation_statuses", "column": "id" },
+          "indexed": true
+        },
+        { "name": "notes", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "waitlist",
+      "rowCount": 3200,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "customer_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "customers", "column": "id" }
+        },
+        { "name": "party_size", "type": "integer", "nullable": false },
+        { "name": "requested_at", "type": "text", "nullable": false, "indexed": true },
+        {
+          "name": "waitlist_status_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "waitlist_statuses", "column": "id" },
+          "indexed": true
+        },
+        { "name": "notes", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "reviews",
+      "rowCount": 28000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "customer_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "customers", "column": "id" }
+        },
+        {
+          "name": "order_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "orders", "column": "id" },
+          "indexed": true
+        },
+        { "name": "rating", "type": "integer", "nullable": false },
+        { "name": "comment", "type": "text", "nullable": true },
+        { "name": "created_at", "type": "text", "nullable": false }
+      ]
+    }
+  ]
+}

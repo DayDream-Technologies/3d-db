@@ -684,9 +684,32 @@ export function QueryBuilder() {
               </button>
             </span>
           ))}
+          <select
+            className="max-w-[150px] rounded border border-slate-600 bg-slate-900 px-1 py-0.5 text-[10px] text-slate-200"
+            value=""
+            onChange={(e) => {
+              if (e.target.value)
+                apply({ ...model, groupBy: [...model.groupBy, e.target.value] });
+              e.target.value = "";
+            }}
+          >
+            <option value="">+ column…</option>
+            {schema.tables.map((tbl) =>
+              tbl.columns.map((col) => {
+                const val = model.from.kind === "table" && model.from.alias
+                  ? `${model.from.name === tbl.name ? model.from.alias : tbl.name}.${col.name}`
+                  : `${tbl.name}.${col.name}`;
+                return (
+                  <option key={`${tbl.name}.${col.name}`} value={val}>
+                    {tbl.name}.{col.name}
+                  </option>
+                );
+              })
+            )}
+          </select>
           <input
-            className="w-40 rounded border border-slate-600 bg-slate-950 text-[10px] text-slate-200"
-            placeholder="e.g. u.id"
+            className="w-32 rounded border border-slate-600 bg-slate-950 text-[10px] text-slate-200"
+            placeholder="or type expr"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -714,14 +737,34 @@ export function QueryBuilder() {
         <div className="mb-1 text-xs font-semibold text-slate-400">ORDER BY</div>
         {(model.orderBy ?? []).map((o, i) => (
           <div key={i} className="mb-1 flex flex-wrap gap-1 text-[10px]">
-            <input
-              className="w-32 rounded border border-slate-600"
+            <select
+              className="max-w-[130px] rounded border border-slate-600 bg-slate-900 px-1 text-[10px] text-slate-200"
               value={o.expr}
               onChange={(e) => {
                 const n: OrderKey[] = [...(model.orderBy ?? [])];
                 n[i] = { ...n[i]!, expr: e.target.value };
                 apply({ ...model, orderBy: n });
               }}
+            >
+              <option value={o.expr}>{o.expr}</option>
+              {schema.tables.flatMap((tbl) =>
+                tbl.columns.map((col) => {
+                  const val = `${tbl.name}.${col.name}`;
+                  return val !== o.expr ? (
+                    <option key={val} value={val}>{val}</option>
+                  ) : null;
+                }).filter(Boolean)
+              )}
+            </select>
+            <input
+              className="w-24 rounded border border-slate-600 bg-slate-900 px-1 text-[10px] text-slate-200"
+              value={o.expr}
+              onChange={(e) => {
+                const n: OrderKey[] = [...(model.orderBy ?? [])];
+                n[i] = { ...n[i]!, expr: e.target.value };
+                apply({ ...model, orderBy: n });
+              }}
+              placeholder="expr"
             />
             <select
               value={o.dir}
@@ -772,7 +815,7 @@ export function QueryBuilder() {
               ...model,
               orderBy: [
                 ...model.orderBy,
-                { expr: "1", dir: "ASC" },
+                { expr: schema.tables[0]?.columns[0]?.name ?? "1", dir: "ASC" },
               ],
             })
           }

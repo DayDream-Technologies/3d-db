@@ -90,6 +90,11 @@ function emitWhereItem(w: WhereItem, paren: boolean): string {
       .join(", ");
     return `${l} ${w.op} ( ${list} )`;
   }
+  if (w.op === "BETWEEN" || w.op === "NOT BETWEEN") {
+    const lo = w.right ? emitVal(w.right) : "?";
+    const hi = w.betweenEnd ? emitVal(w.betweenEnd) : "?";
+    return `${l} ${w.op} ${lo} AND ${hi}`;
+  }
   if (w.right == null) return l;
   return `${l} ${w.op} ${emitVal(w.right)}`;
 }

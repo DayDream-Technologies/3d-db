@@ -1,17 +1,21 @@
 {
-  "name": "3d-db-mcp-zq",
-  "version": "0.1.4",
+  "name": "@daydream-technologies/3d-db-mcp",
+  "version": "0.1.0",
   "license": "MIT",
   "description": "MCP server for 3d-db — visualize your database in 3D from Claude, Cursor, Windsurf, or any MCP client",
   "type": "module",
+  "mcpName": "io.github.daydream-technologies/3d-db",
   "bin": {
-    "db-viz-mcp": "dist/index.js"
+    "3d-db-mcp": "dist/index.js"
   },
   "files": [
     "dist/",
     "static/",
     "README.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=18"
   },

@@ -287,6 +287,18 @@ function binaryToWhere(b: Binary | null | undefined): WhereItem | null {
     if (!wop) {
       return { t: "cond" as any, op: "=", left: toValExpr(b.left), right: toValExpr(b.right) } as any;
     }
+    if (wop === "BETWEEN" || wop === "NOT BETWEEN") {
+      const rArr = b.right as any;
+      const lo = rArr?.value?.[0] ?? rArr?.left ?? rArr;
+      const hi = rArr?.value?.[1] ?? rArr?.right;
+      return {
+        t: "cond",
+        op: wop,
+        left: toValExpr(b.left as any),
+        right: toValExpr(lo),
+        betweenEnd: hi ? toValExpr(hi) : { k: "str" as const, v: "" },
+      } as WhereItem;
+    }
     return {
       t: "cond",
       op: wop as any,
@@ -314,9 +326,16 @@ function mapOp(o: string, b: Binary): WhereOp | null {
   if (u === "in") return "IN";
   if (u === "not in" || o === "NOT IN") return "NOT IN";
   if (u === "like") return "LIKE";
+  if (u === "not like" || o === "NOT LIKE") return "NOT LIKE";
+  if (u === "between") return "BETWEEN";
+  if (u === "not between" || o === "NOT BETWEEN") return "NOT BETWEEN";
   if (u === "is") {
     const r = b.right as any;
     if (r?.value === "null" || r?.type === "null") return "IS NULL";
+  }
+  if (u === "is not") {
+    const r = b.right as any;
+    if (r?.value === "null" || r?.type === "null") return "IS NOT NULL";
   }
   return null;
 }

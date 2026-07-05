@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Schema } from "@/model/schema";
 import type { ValExpr, WhereItem, WhereOp } from "@/model/query";
 import { ColumnPicker } from "./ColumnPicker";
@@ -13,6 +14,8 @@ const OPS: WhereOp[] = [
   "NOT LIKE",
   "IN",
   "NOT IN",
+  "BETWEEN",
+  "NOT BETWEEN",
   "IS NULL",
   "IS NOT NULL",
 ];
@@ -171,6 +174,8 @@ export function WhereGroupEditor({ schema, value, onChange, label }: Props) {
   );
 }
 
+type RhsMode = "literal" | "column";
+
 function OneCondition({
   schema,
   c,
@@ -184,6 +189,12 @@ function OneCondition({
   const lc = valExprToCol(left);
   const isIn = c.op === "IN" || c.op === "NOT IN";
   const isNullOp = c.op === "IS NULL" || c.op === "IS NOT NULL";
+  const isBetween = c.op === "BETWEEN" || c.op === "NOT BETWEEN";
+
+  const inferredRhsMode: RhsMode = c.right?.k === "col" ? "column" : "literal";
+  const [rhsMode, setRhsMode] = useState<RhsMode>(inferredRhsMode);
+
+  const showRhsValue = !isNullOp && !isIn && !isBetween;
 
   return (
     <div className="flex flex-wrap items-end gap-1">
@@ -230,6 +241,9 @@ function OneCondition({
                 ? undefined
                 : c.right,
             inList: op === "IN" || op === "NOT IN" ? c.inList ?? [""] : undefined,
+            betweenEnd: op === "BETWEEN" || op === "NOT BETWEEN"
+              ? c.betweenEnd ?? { k: "str", v: "" }
+              : undefined,
           });
         }}
       >
@@ -239,32 +253,109 @@ function OneCondition({
           </option>
         ))}
       </select>
-      {!isNullOp && !isIn && (
-        <input
-          className="w-24 rounded border border-slate-600 bg-slate-900 px-1 py-0.5 font-mono text-[10px] text-slate-200"
-          placeholder="value"
-          value={
-            c.right?.k === "str"
-              ? c.right.v
-              : c.right?.k === "num"
-                ? String(c.right.v)
-                : c.right?.k === "col"
-                  ? (c.right.table
-                      ? `${c.right.table}.${c.right.column}`
-                      : c.right.column) ?? ""
-                  : ""
-          }
-          onChange={(e) => {
-            const t = e.target.value;
-            const n = Number(t);
-            onChange({
-              ...c,
-              right: !Number.isNaN(n) && t !== "" && String(n) === t
-                ? { k: "num", v: n }
-                : { k: "str", v: t },
-            });
-          }}
-        />
+      {showRhsValue && (
+        <>
+          <button
+            type="button"
+            className="rounded border border-slate-700 px-1 py-0.5 text-[9px] text-slate-500 hover:text-slate-300"
+            title={rhsMode === "literal" ? "Switch to column reference" : "Switch to literal value"}
+            onClick={() => {
+              const next = rhsMode === "literal" ? "column" : "literal";
+              setRhsMode(next);
+              if (next === "column") {
+                const t0 = schema.tables[0]?.name;
+                const col0 = schema.tables[0]?.columns[0]?.name ?? "id";
+                onChange({ ...c, right: { k: "col", table: t0, column: col0 } });
+              } else {
+                onChange({ ...c, right: { k: "str", v: "" } });
+              }
+            }}
+          >
+            {rhsMode === "literal" ? "val" : "col"}
+          </button>
+          {rhsMode === "column" && c.right?.k === "col" ? (
+            <ColumnPicker
+              schema={schema}
+              table={c.right.table}
+              column={c.right.column}
+              onTable={(t) =>
+                onChange({ ...c, right: { k: "col", table: t, column: c.right?.k === "col" ? c.right.column : "id" } })
+              }
+              onColumn={(col) =>
+                onChange({ ...c, right: { k: "col", table: c.right?.k === "col" ? c.right.table : undefined, column: col } })
+              }
+            />
+          ) : (
+            <input
+              className="w-24 rounded border border-slate-600 bg-slate-900 px-1 py-0.5 font-mono text-[10px] text-slate-200"
+              placeholder="value"
+              value={
+                c.right?.k === "str"
+                  ? c.right.v
+                  : c.right?.k === "num"
+                    ? String(c.right.v)
+                    : c.right?.k === "col"
+                      ? (c.right.table
+                          ? `${c.right.table}.${c.right.column}`
+                          : c.right.column) ?? ""
+                      : ""
+              }
+              onChange={(e) => {
+                const t = e.target.value;
+                const n = Number(t);
+                onChange({
+                  ...c,
+                  right: !Number.isNaN(n) && t !== "" && String(n) === t
+                    ? { k: "num", v: n }
+                    : { k: "str", v: t },
+                });
+              }}
+            />
+          )}
+        </>
+      )}
+      {isBetween && (
+        <div className="flex items-center gap-1">
+          <input
+            className="w-20 rounded border border-slate-600 bg-slate-900 px-1 py-0.5 font-mono text-[10px] text-slate-200"
+            placeholder="low"
+            value={
+              c.right?.k === "str" ? c.right.v
+                : c.right?.k === "num" ? String(c.right.v)
+                : ""
+            }
+            onChange={(e) => {
+              const t = e.target.value;
+              const n = Number(t);
+              onChange({
+                ...c,
+                right: !Number.isNaN(n) && t !== "" && String(n) === t
+                  ? { k: "num", v: n }
+                  : { k: "str", v: t },
+              });
+            }}
+          />
+          <span className="text-[9px] text-slate-500">AND</span>
+          <input
+            className="w-20 rounded border border-slate-600 bg-slate-900 px-1 py-0.5 font-mono text-[10px] text-slate-200"
+            placeholder="high"
+            value={
+              c.betweenEnd?.k === "str" ? c.betweenEnd.v
+                : c.betweenEnd?.k === "num" ? String(c.betweenEnd.v)
+                : ""
+            }
+            onChange={(e) => {
+              const t = e.target.value;
+              const n = Number(t);
+              onChange({
+                ...c,
+                betweenEnd: !Number.isNaN(n) && t !== "" && String(n) === t
+                  ? { k: "num", v: n }
+                  : { k: "str", v: t },
+              });
+            }}
+          />
+        </div>
       )}
       {isIn && (
         <input

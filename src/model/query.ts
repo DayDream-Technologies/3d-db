@@ -20,7 +20,9 @@ export type WhereOp =
   | "IN"
   | "NOT IN"
   | "IS NULL"
-  | "IS NOT NULL";
+  | "IS NOT NULL"
+  | "BETWEEN"
+  | "NOT BETWEEN";
 
 /** Unqualified or qualified column ref as string, or raw for expressions */
 export type ValExpr =
@@ -32,7 +34,7 @@ export type ValExpr =
 
 export type WhereItem =
   | { t: "group"; op: "AND" | "OR"; children: WhereItem[] }
-  | { t: "cond"; op: WhereOp; left: ValExpr; right?: ValExpr; inList?: string[] };
+  | { t: "cond"; op: WhereOp; left: ValExpr; right?: ValExpr; inList?: string[]; betweenEnd?: ValExpr };
 
 export type AggFn = "COUNT" | "SUM" | "AVG" | "MIN" | "MAX";
 

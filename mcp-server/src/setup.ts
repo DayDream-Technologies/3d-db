@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
 import { homedir, platform } from 'os';
 
-const MCP_ENTRY = { command: 'npx', args: ['--yes', '--package', '3d-db-mcp-zq', 'db-viz-mcp'] };
+const MCP_ENTRY = { command: 'npx', args: ['--yes', '--package', '@daydream-technologies/3d-db-mcp', '3d-db-mcp'] };
 
 type Format = 'mcpServers' | 'servers';
 
@@ -95,7 +95,7 @@ export function runSetup(): void {
   } else if (tools.every(t => patchConfig(t) === 'skipped')) {
     console.log('No supported AI tools detected (Claude Desktop, Claude Code, Cursor, Windsurf).');
     console.log('For VS Code / GitHub Copilot, create .vscode/mcp.json in your project — see:');
-    console.log('https://github.com/zaidqourah2004/3d-db/blob/main/mcp-server/README.md');
+    console.log('https://github.com/DayDream-Technologies/3d-db/blob/main/mcp-server/README.md');
   } else {
     console.log('All supported AI tools were already configured.');
     console.log('Ask your AI: "Load my database schema into the 3D visualizer"');

@@ -1,0 +1,111 @@
+{
+  "name": "Restaurant (anti-patterns)",
+  "tables": [
+    {
+      "name": "audit_log",
+      "rowCount": 980000,
+      "columns": [
+        { "name": "row_num", "type": "integer" },
+        { "name": "action", "type": "text", "nullable": true },
+        { "name": "entity_type", "type": "text", "nullable": true },
+        { "name": "entity_id", "type": "integer", "nullable": true },
+        { "name": "old_value", "type": "text", "nullable": true },
+        { "name": "new_value", "type": "text", "nullable": true },
+        { "name": "performed_by", "type": "text", "nullable": true },
+        { "name": "performed_at", "type": "text", "nullable": true },
+        { "name": "ip_address", "type": "text", "nullable": true },
+        { "name": "user_agent", "type": "text", "nullable": true },
+        { "name": "session_id", "type": "text", "nullable": true },
+        { "name": "notes", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "customer_analytics",
+      "rowCount": 250000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "customer_id", "type": "integer", "nullable": false, "foreignKey": { "table": "customers", "column": "id" }, "indexed": false },
+        { "name": "first_visit", "type": "text", "nullable": true },
+        { "name": "last_visit", "type": "text", "nullable": true },
+        { "name": "total_spend_cents", "type": "integer", "nullable": true },
+        { "name": "avg_rating_given", "type": "real", "nullable": true },
+        { "name": "preferred_table_id", "type": "integer", "nullable": true },
+        { "name": "referral_source", "type": "text", "nullable": true },
+        { "name": "marketing_consent", "type": "integer", "nullable": true },
+        { "name": "loyalty_tier", "type": "text", "nullable": true },
+        { "name": "notes_1", "type": "text", "nullable": true },
+        { "name": "notes_2", "type": "text", "nullable": true },
+        { "name": "notes_3", "type": "text", "nullable": true },
+        { "name": "flag_a", "type": "integer", "nullable": true },
+        { "name": "flag_b", "type": "integer", "nullable": true },
+        { "name": "flag_c", "type": "integer", "nullable": true },
+        { "name": "meta_json", "type": "text", "nullable": true },
+        { "name": "segment_1", "type": "text", "nullable": true },
+        { "name": "segment_2", "type": "text", "nullable": true },
+        { "name": "segment_3", "type": "text", "nullable": true },
+        { "name": "campaign_id", "type": "text", "nullable": true },
+        { "name": "utm_source", "type": "text", "nullable": true },
+        { "name": "utm_medium", "type": "text", "nullable": true },
+        { "name": "utm_campaign", "type": "text", "nullable": true },
+        { "name": "utm_term", "type": "text", "nullable": true },
+        { "name": "utm_content", "type": "text", "nullable": true },
+        { "name": "custom_field_1", "type": "text", "nullable": true },
+        { "name": "custom_field_2", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "orphan_config",
+      "rowCount": 12,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "key", "type": "text", "nullable": false },
+        { "name": "value", "type": "text", "nullable": true },
+        { "name": "updated_at", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "customers",
+      "rowCount": 8500,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true, "indexed": false },
+        { "name": "name", "type": "text", "nullable": false, "indexed": true },
+        { "name": "email", "type": "text", "nullable": true },
+        { "name": "phone", "type": "text", "nullable": true, "indexed": true },
+        { "name": "created_at", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "orders",
+      "rowCount": 52000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "customer_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "customers", "column": "id" },
+          "indexed": true
+        },
+        { "name": "placed_at", "type": "text", "nullable": false, "indexed": true },
+        { "name": "notes", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "order_lines",
+      "rowCount": 145000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "order_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "orders", "column": "id" },
+          "indexed": false
+        },
+        { "name": "menu_item_id", "type": "integer", "nullable": false },
+        { "name": "qty", "type": "integer", "nullable": false },
+        { "name": "unit_price_cents", "type": "integer", "nullable": false }
+      ]
+    }
+  ]
+}

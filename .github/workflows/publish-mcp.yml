@@ -1,0 +1,57 @@
+name: Publish MCP Package
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build visualizer
+        run: npm run build
+
+      - name: Build MCP server
+        run: npm run build --prefix mcp-server
+
+      - name: Bundle static assets into MCP package
+        run: rm -rf mcp-server/static && cp -r dist mcp-server/static
+
+      - name: Sync version from git tag
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          cd mcp-server
+          npm version "$VERSION" --no-git-tag-version
+          jq --arg v "$VERSION" '.version = $v' server.json > tmp && mv tmp server.json
+
+      - name: Publish to npm
+        run: npm publish --prefix mcp-server
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Download MCP Publisher
+        run: |
+          curl -sL "https://github.com/modelcontextprotocol/registry/releases/download/latest/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+
+      - name: Publish to MCP Registry
+        run: |
+          cd mcp-server
+          ../mcp-publisher login github-oidc
+          ../mcp-publisher publish

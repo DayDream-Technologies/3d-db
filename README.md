@@ -17,7 +17,7 @@ Connect Claude Desktop, Claude Code, Cursor, Windsurf, or VS Code so your AI can
 Run this once in your terminal (Node.js 18+ required):
 
 ```
-npx --yes --package 3d-db-mcp-zq db-viz-mcp setup
+npx --yes --package @daydream-technologies/3d-db-mcp 3d-db-mcp setup
 ```
 
 Then restart your AI tool and ask it: *"Load my database schema into the 3D visualizer"* — a browser window opens automatically.

@@ -129,6 +129,25 @@ export function ImportPanel() {
           >
             Library
           </button>
+          <button
+            type="button"
+            className="rounded bg-slate-800 px-2 py-1 text-[11px] hover:bg-slate-700"
+            onClick={() =>
+              void loadSample("/samples/restaurant.json").catch(alert)
+            }
+          >
+            Restaurant
+          </button>
+          <button
+            type="button"
+            className="rounded bg-amber-900/60 px-2 py-1 text-[11px] text-amber-200 hover:bg-amber-800/60"
+            title="Schema with intentional anti-patterns to test the Tips system"
+            onClick={() =>
+              void loadSample("/samples/restaurant-antipatterns.json").catch(alert)
+            }
+          >
+            Anti-patterns
+          </button>
         </div>
       </div>
       <div>
