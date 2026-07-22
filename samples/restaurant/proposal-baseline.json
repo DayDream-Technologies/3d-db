@@ -1,0 +1,66 @@
+{
+  "name": "Restaurant (baseline for proposal test)",
+  "tables": [
+    {
+      "name": "customers",
+      "rowCount": 8500,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        { "name": "name", "type": "text", "nullable": false, "indexed": true },
+        { "name": "email", "type": "text", "nullable": true },
+        { "name": "phone", "type": "text", "nullable": true, "indexed": true },
+        { "name": "created_at", "type": "text", "nullable": false }
+      ]
+    },
+    {
+      "name": "orders",
+      "rowCount": 52000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "customer_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "customers", "column": "id" },
+          "indexed": true
+        },
+        { "name": "placed_at", "type": "text", "nullable": false, "indexed": true },
+        { "name": "notes", "type": "text", "nullable": true }
+      ]
+    },
+    {
+      "name": "order_lines",
+      "rowCount": 145000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "order_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "orders", "column": "id" },
+          "indexed": true
+        },
+        { "name": "menu_item_id", "type": "integer", "nullable": false },
+        { "name": "qty", "type": "integer", "nullable": false },
+        { "name": "unit_price_cents", "type": "integer", "nullable": false }
+      ]
+    },
+    {
+      "name": "payments",
+      "rowCount": 52000,
+      "columns": [
+        { "name": "id", "type": "integer", "primaryKey": true },
+        {
+          "name": "order_id",
+          "type": "integer",
+          "nullable": false,
+          "foreignKey": { "table": "orders", "column": "id" },
+          "indexed": true
+        },
+        { "name": "method", "type": "text", "nullable": false },
+        { "name": "amount_cents", "type": "integer", "nullable": false },
+        { "name": "processed_at", "type": "text", "nullable": false, "indexed": true }
+      ]
+    }
+  ]
+}
