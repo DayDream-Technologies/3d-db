@@ -24,7 +24,7 @@ function parseColumnDefinition(def: unknown): Column | null {
   if (!def || typeof def !== "object") return null;
   const d = def as {
     resource?: string;
-    column?: { expr: { type: string; column: string } };
+    column?: { column: { expr: { type: string; value: string } } };
     definition?: { dataType?: string; length?: number };
     primary_key?: { column: string };
     reference_definition?: {
@@ -36,14 +36,15 @@ function parseColumnDefinition(def: unknown): Column | null {
     key?: string;
     constraint_type?: string;
   };
+ 
+  if (d.resource !== "column" || !d.column?.column?.expr) return null;
 
-  if (d.resource !== "column" || !d.column?.expr?.column) return null;
-
-  const name = d.column.expr.column;
+  const name = d.column.column.expr.value;
   const dataType = d.definition?.dataType ?? "unknown";
   const length = d.definition?.length;
   const typeStr =
     length != null ? `${String(dataType)}(${length})` : String(dataType);
+
 
   const col: Column = {
     name,
@@ -72,10 +73,21 @@ function extractColumns(ast: CreateTableAst): Column[] {
 
   const columns: Column[] = [];
   const pkColumns = new Set<string>();
+  const fkColumns = new Set<{table: string; value: string}>();
 
   for (const def of defs) {
     if (!def || typeof def !== "object") continue;
-    const d = def as { constraint_type?: string; definition?: unknown[] };
+    const d = def as { constraint_type?: string; definition?: unknown[]; reference_definition?: { table: unknown[]; definition: unknown[] } };
+    if (d.constraint_type === "FOREIGN KEY") {
+      const fkTable = (d.reference_definition?.table[0] as { table: string }).table;
+      let fkValue: string;
+      if(d.constraint_type === "FOREIGN KEY" && Array.isArray(d.definition)){
+        for(const fk of d.definition) {
+          fkValue = (fk as { column: { expr: { type: string; value: string} } }).column.expr.value;
+          fkColumns.add({ table: fkTable, value:fkValue });
+        }
+      }
+    }
     if (d.constraint_type === "primary key" && Array.isArray(d.definition)) {
       for (const pk of d.definition) {
         if (
@@ -94,6 +106,11 @@ function extractColumns(ast: CreateTableAst): Column[] {
     const col = parseColumnDefinition(def);
     if (col) {
       if (pkColumns.has(col.name)) col.primaryKey = true;
+      
+      const fk = [...fkColumns].find(fk => fk.value === col.name);
+      if(fk) {
+        col.foreignKey = { table: fk.table, column: fk.value };
+      }
       columns.push(col);
     }
   }
